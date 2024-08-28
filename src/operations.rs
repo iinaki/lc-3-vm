@@ -283,6 +283,51 @@ fn op_str(register: &mut Register, instr: u16, memory: &mut Memory) {
     memory[(register.get(r1) + offset) as usize] = register.get(r0);
 }
 
+// handle trap reg[R_R7] = reg[R_PC];
+
+// switch (instr & 0xFF)
+// {
+//     case TRAP_GETC:
+//         @{TRAP GETC}
+//         break;
+//     case TRAP_OUT:
+//         @{TRAP OUT}
+//         break;
+//     case TRAP_PUTS:
+//         @{TRAP PUTS}
+//         break;
+//     case TRAP_IN:
+//         @{TRAP IN}
+//         break;
+//     case TRAP_PUTSP:
+//         @{TRAP PUTSP}
+//         break;
+//     case TRAP_HALT:
+//         @{TRAP HALT}
+//         break;
+// }
+
+fn handle_trap(register: &mut Register, instr: u16, memory: &mut Memory) {
+    let trap_instr = instr & 0xFF;
+    match trap_instr {
+        0x20 => {
+            // @{TRAP GETC}
+        }
+        0x21 => {
+            // @{TRAP OUT}
+        }
+        0x22 => {
+            // @{TRAP PUTS}
+        }
+        0x23 => {
+            // @{TRAP IN}
+        }
+        0x24 => {
+            // @{TRAP PUTSP}
+        }
+    }
+}
+
 pub fn handle_operations( register: &mut Register, instr: u16, op: u16, memory: &mut Memory) {
     match op {
         Opcode::OP_ADD => {
@@ -339,6 +384,7 @@ pub fn handle_operations( register: &mut Register, instr: u16, op: u16, memory: 
         }
         Opcode::OP_TRAP => {
             // @{TRAP}
+            handle_trap(register, instr, memory);
         }
         _ => {
             // @{BAD OPCODE}
