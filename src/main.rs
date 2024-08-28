@@ -1,9 +1,6 @@
 use std::{env, process};
 
-use lc_3_vm::register::Register;
-use lc_3_vm::opcode::Opcode;
-use lc_3_vm::condition_flag::ConditionFlag;
-use lc_3_vm::operations::handle_operations;
+use lc_3_vm::{memory::Memory, register::Register, opcode::Opcode, condition_flag::ConditionFlag, operations::handle_operations};
 
 const MEMORY_MAX: usize = 1 << 16;
 const PC_START: u16 = 0x3000;
@@ -13,7 +10,7 @@ fn read_image(file_name: &str) -> bool {
 }
 
 fn main() {
-    let mut memory = [0; MEMORY_MAX];
+    let mut memory: Memory = [0; MEMORY_MAX];
     let mut register = Register::new();
 
     // @{Load Arguments}

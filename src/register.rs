@@ -41,21 +41,10 @@ impl Register {
             5 => self.R_R5,
             6 => self.R_R6,
             7 => self.R_R7,
-            _ => panic!("Invalid register"),
-        }
-    }
-
-    pub fn set(&mut self, r: u16, val: u16) {
-        match r {
-            0 => self.R_R0 = val,
-            1 => self.R_R1 = val,
-            2 => self.R_R2 = val,
-            3 => self.R_R3 = val,
-            4 => self.R_R4 = val,
-            5 => self.R_R5 = val,
-            6 => self.R_R6 = val,
-            7 => self.R_R7 = val,
-            _ => panic!("Invalid register"),
+            _ => {
+                println!("Invalid register");
+                0
+            },
         }
     }
 }
