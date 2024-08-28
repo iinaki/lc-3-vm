@@ -1,14 +1,36 @@
+use std::{env, process};
+
 use lc_3_vm::register::Register;
 use lc_3_vm::opcode::Opcode;
 use lc_3_vm::condition_flag::ConditionFlag;
+use lc_3_vm::operations::handle_operations;
 
 const MEMORY_MAX: usize = 1 << 16;
+const PC_START: u16 = 0x3000;
+
+fn read_image(file_name: &str) -> bool {
+    true // Placeholde
+}
 
 fn main() {
-    let memory = [0; MEMORY_MAX];
-    let register = Register::new();
+    let mut memory = [0; MEMORY_MAX];
+    let mut register = Register::new();
 
     // @{Load Arguments}
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() < 2 {
+        println!("Usage: lc3 [image-file1] ...");
+        process::exit(2);
+    }
+
+    for arg in &args[1..] {
+        if !read_image(arg) {
+            println!("Failed to load image: {}", arg);
+            process::exit(1);
+        }
+    }
+
     // @{Setup}
 
     /* since exactly one condition flag should be set at any given time, set the Z flag */
@@ -16,66 +38,15 @@ fn main() {
 
     /* set the PC to starting position */
     /* 0x3000 is the default */
-    enum { PC_START = 0x3000 };
-    reg[R_PC] = PC_START;
+    register.R_PC = PC_START;
 
-    int running = 1;
-    while (running)
-    {
+    let running = true;
+    while running {
         /* FETCH */
-        uint16_t instr = mem_read(reg[R_PC]++);
-        uint16_t op = instr >> 12;
+        let instr: u16 = mem_read(register.R_PC += 1);
+        let op: u16 = instr >> 12;
 
-        switch (op)
-        {
-            case OP_ADD:
-                @{ADD}
-                break;
-            case OP_AND:
-                @{AND}
-                break;
-            case OP_NOT:
-                @{NOT}
-                break;
-            case OP_BR:
-                @{BR}
-                break;
-            case OP_JMP:
-                @{JMP}
-                break;
-            case OP_JSR:
-                @{JSR}
-                break;
-            case OP_LD:
-                @{LD}
-                break;
-            case OP_LDI:
-                @{LDI}
-                break;
-            case OP_LDR:
-                @{LDR}
-                break;
-            case OP_LEA:
-                @{LEA}
-                break;
-            case OP_ST:
-                @{ST}
-                break;
-            case OP_STI:
-                @{STI}
-                break;
-            case OP_STR:
-                @{STR}
-                break;
-            case OP_TRAP:
-                @{TRAP}
-                break;
-            case OP_RES:
-            case OP_RTI:
-            default:
-                @{BAD OPCODE}
-                break;
-        }
+        handle_operations(&mut register, instr, op, &mut memory);
     }
-    @{Shutdown}
+    //@{Shutdown}
 }

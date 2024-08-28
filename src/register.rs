@@ -1,17 +1,17 @@
 use crate::condition_flag::ConditionFlag;
 
 pub struct Register {
-    pub R_R0: i8,
-    pub R_R1: i8,
-    pub R_R2: i8,
-    pub R_R3: i8,
-    pub R_R4: i8,
-    pub R_R5: i8,
-    pub R_R6: i8,
-    pub R_R7: i8,
-    pub R_PC: i8,
+    pub R_R0: u16,
+    pub R_R1: u16,
+    pub R_R2: u16,
+    pub R_R3: u16,
+    pub R_R4: u16,
+    pub R_R5: u16,
+    pub R_R6: u16,
+    pub R_R7: u16,
+    pub R_PC: u16,
     pub R_COND: ConditionFlag,
-    pub R_COUNT: i8,
+    pub R_COUNT: u16,
 }
 
 impl Register {
@@ -30,5 +30,32 @@ impl Register {
             R_COUNT: 0,
         }
     }
-}
 
+    pub fn get(&self, r: u16) -> u16 {
+        match r {
+            0 => self.R_R0,
+            1 => self.R_R1,
+            2 => self.R_R2,
+            3 => self.R_R3,
+            4 => self.R_R4,
+            5 => self.R_R5,
+            6 => self.R_R6,
+            7 => self.R_R7,
+            _ => panic!("Invalid register"),
+        }
+    }
+
+    pub fn set(&mut self, r: u16, val: u16) {
+        match r {
+            0 => self.R_R0 = val,
+            1 => self.R_R1 = val,
+            2 => self.R_R2 = val,
+            3 => self.R_R3 = val,
+            4 => self.R_R4 = val,
+            5 => self.R_R5 = val,
+            6 => self.R_R6 = val,
+            7 => self.R_R7 = val,
+            _ => panic!("Invalid register"),
+        }
+    }
+}
