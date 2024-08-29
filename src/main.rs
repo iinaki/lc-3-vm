@@ -1,23 +1,18 @@
 use std::{env, process};
 
 use lc_3_vm::{
-    memory::Memory,
+    memory::{Memory, MEMORY_SIZE},
     operations::{handle_operations, mem_read},
     register::Register,
+    utils::read_image_file,
 };
 
-const MEMORY_MAX: usize = 1 << 16;
-const PC_START: u16 = 0x3000;
-
-fn read_image(file_name: &str) -> bool {
-    true // Placeholder
-}
-
 fn main() {
-    let mut memory: Memory = [0; MEMORY_MAX];
+    let mut memory: Memory = [0; MEMORY_SIZE];
     let mut register = Register::new();
 
     // @{Load Arguments}
+    // handle de args
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
@@ -25,25 +20,21 @@ fn main() {
         process::exit(2);
     }
 
-    for arg in &args[1..] {
-        if !read_image(arg) {
-            println!("Failed to load image: {}", arg);
-            process::exit(1);
+    let path = &args[1];
+    match read_image_file(path, &mut memory) {
+        Ok(_) => (),
+        Err(e) => {
+            println!("Error reading image file: {}", e);
+            process::exit(2);
         }
     }
-
-    // @{Setup}
-
-    /* set the PC to starting position */
-    /* 0x3000 is the default */
-    register.R_PC = PC_START;
 
     let mut running = true;
     while running {
         /* FETCH */
         register.R_PC += 1;
-        let instr: u16 = mem_read(register.R_PC, &memory);
-        let op: u16 = instr >> 12;
+        let instr = mem_read(register.R_PC, &memory);
+        let op = instr >> 12;
 
         handle_operations(&mut register, instr, op, &mut memory, &mut running);
     }

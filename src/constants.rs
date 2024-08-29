@@ -1,3 +1,6 @@
+/* 0x3000 is the default */
+pub const PC_START: u16 = 0x3000;
+
 // CONDITION FLAGS
 pub const FL_POS: u16 = 1 << 0; /* P */
 pub const FL_ZRO: u16 = 1 << 1; /* Z */

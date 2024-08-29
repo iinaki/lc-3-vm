@@ -1,6 +1,14 @@
-use std::{io::{Read, Write}, process};
+use std::io::{Read, Write};
 
-use crate::{constants::{FL_NEG, FL_POS, FL_ZRO, OP_ADD, OP_AND, OP_BR, OP_JMP, OP_JSR, OP_LD, OP_LDI, OP_LDR, OP_LEA, OP_NOT, OP_ST, OP_STI, OP_STR, OP_TRAP, TRAP_GETC, TRAP_IN, TRAP_OUT, TRAP_PUTS, TRAP_PUTSP}, memory::Memory, register::Register};
+use crate::{
+    constants::{
+        FL_NEG, FL_POS, FL_ZRO, OP_ADD, OP_AND, OP_BR, OP_JMP, OP_JSR, OP_LD, OP_LDI, OP_LDR,
+        OP_LEA, OP_NOT, OP_ST, OP_STI, OP_STR, OP_TRAP, TRAP_GETC, TRAP_IN, TRAP_OUT, TRAP_PUTS,
+        TRAP_PUTSP,
+    },
+    memory::Memory,
+    register::Register,
+};
 
 pub fn mem_read(address: u16, memory: &Memory) -> u16 {
     memory[address as usize] as u16
@@ -23,10 +31,10 @@ fn sign_extend(mut x: u16, bit_count: u16) -> u16 {
 /// Flushes the stdout buffer
 fn flush_stdout() {
     match std::io::stdout().flush() {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
             println!("Error flushing stdout: {}", e);
-        },
+        }
     };
 }
 
@@ -323,13 +331,11 @@ fn trap_puts(register: &mut Register, memory: &Memory) {
 fn trap_getc(register: &mut Register) {
     let mut buffer = [0; 1];
     register.R_R0 = match std::io::stdin().read_exact(&mut buffer) {
-        Ok(_) => {
-            buffer[0] as u16
-        },
+        Ok(_) => buffer[0] as u16,
         Err(e) => {
             println!("Error reading from stdin: {}", e);
             0
-        },
+        }
     };
     update_flags(register, register.R_R0);
 }
@@ -356,13 +362,11 @@ fn trap_in(register: &mut Register) {
     print!("Enter a character: ");
     let mut buffer = [0; 1];
     let c = match std::io::stdin().read_exact(&mut buffer) {
-        Ok(_) => {
-            buffer[0] as char
-        },
+        Ok(_) => buffer[0] as char,
         Err(e) => {
             println!("Error reading from stdin: {}", e);
             ' '
-        },
+        }
     };
     print!("{}", c);
     flush_stdout();
@@ -445,7 +449,13 @@ fn handle_trap(register: &mut Register, instr: u16, memory: &mut Memory, running
     }
 }
 
-pub fn handle_operations(register: &mut Register, instr: u16, op: u16, memory: &mut Memory, running: &mut bool) {
+pub fn handle_operations(
+    register: &mut Register,
+    instr: u16,
+    op: u16,
+    memory: &mut Memory,
+    running: &mut bool,
+) {
     match op {
         OP_ADD => {
             // @{ADD}

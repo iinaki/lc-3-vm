@@ -1,4 +1,4 @@
-use crate::constants::FL_ZRO;
+use crate::constants::{FL_ZRO, PC_START};
 
 pub struct Register {
     pub R_R0: u16,
@@ -25,7 +25,7 @@ impl Register {
             R_R5: 0,
             R_R6: 0,
             R_R7: 0,
-            R_PC: 0,
+            R_PC: PC_START,
             R_COND: FL_ZRO,
             R_COUNT: 0,
         }
