@@ -1,14 +1,11 @@
 use std::{env, process};
 
 use lc_3_vm::{
-    memory::{Memory, MEMORY_SIZE},
-    operations::{handle_operations, mem_read},
-    register::Register,
-    utils::read_image_file,
+    memory::Memory, operations::handle_operations, register::Register, utils::read_image_file,
 };
 
 fn main() {
-    let mut memory: Memory = [0; MEMORY_SIZE];
+    let mut memory = Memory::new();
     let mut register = Register::new();
 
     // @{Load Arguments}
@@ -33,7 +30,7 @@ fn main() {
     while running {
         /* FETCH */
         register.R_PC += 1;
-        let instr = mem_read(register.R_PC, &memory);
+        let instr = memory.read(register.R_PC);
         let op = instr >> 12;
 
         handle_operations(&mut register, instr, op, &mut memory, &mut running);

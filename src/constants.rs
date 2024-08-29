@@ -31,3 +31,7 @@ pub const TRAP_PUTS: u16 = 0x22; /* output a word string */
 pub const TRAP_IN: u16 = 0x23; /* get character from keyboard, echoed onto the terminal */
 pub const TRAP_PUTSP: u16 = 0x24; /* output a byte string */
 pub const TRAP_HALT: u16 = 0x25; /* halt the program */
+
+// MEMORY MAPPED REGISTERS
+pub const MR_KBSR: u16 = 0xFE00; /* keyboard status */
+pub const MR_KBDR: u16 = 0xFE02; /* keyboard data */

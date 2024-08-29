@@ -10,9 +10,9 @@ use crate::{
     register::Register,
 };
 
-pub fn mem_read(address: u16, memory: &Memory) -> u16 {
-    memory[address as usize] as u16
-}
+// pub fn mem_read(address: u16, memory: &Memory) -> u16 {
+//     memory[address as usize] as u16
+// }
 
 // uint16_t sign_extend(uint16_t x, int bit_count)
 // {
@@ -212,7 +212,7 @@ fn op_jsr(register: &mut Register, instr: u16) {
 fn op_ld(register: &mut Register, instr: u16, memory: &Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
-    register.set(r0, mem_read(register.R_PC + pc_offset, memory));
+    register.set(r0, memory.read(r0 + pc_offset));
     update_flags(register, r0);
 }
 
@@ -229,10 +229,7 @@ fn op_ld(register: &mut Register, instr: u16, memory: &Memory) {
 fn op_ldi(register: &mut Register, instr: u16, memory: &Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
-    register.set(
-        r0,
-        mem_read(mem_read(register.R_PC + pc_offset, memory), memory),
-    );
+    register.set(r0, memory.read(memory.read(r0 + pc_offset)));
     update_flags(register, r0);
 }
 
@@ -248,7 +245,7 @@ fn op_ldr(register: &mut Register, instr: u16, memory: &Memory) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
     let offset = sign_extend(instr & 0x3F, 6);
-    register.set(r0, mem_read(register.get(r1) + offset, memory));
+    register.set(r0, memory.read(register.get(r1) + offset));
     update_flags(register, r0);
 }
 
@@ -275,7 +272,8 @@ fn op_lea(register: &mut Register, instr: u16) {
 fn op_st(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
-    memory[(r0 + pc_offset) as usize] = register.get(r0);
+    //memory[(r0 + pc_offset) as usize] = register.get(r0);
+    memory.write(r0 + pc_offset, register.get(r0));
 }
 
 // STI {
@@ -287,7 +285,7 @@ fn op_st(register: &mut Register, instr: u16, memory: &mut Memory) {
 fn op_sti(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
-    memory[mem_read(r0 + pc_offset, memory) as usize] = register.get(r0);
+    memory.write(memory.read(r0 + pc_offset), register.get(r0));
 }
 
 // STR {
@@ -301,7 +299,7 @@ fn op_str(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
     let offset = sign_extend(instr & 0x3F, 6);
-    memory[(register.get(r1) + offset) as usize] = register.get(r0);
+    memory.write(register.get(r1) + offset, register.get(r0));
 }
 
 // TRAP PUTS {
@@ -316,9 +314,9 @@ fn op_str(register: &mut Register, instr: u16, memory: &mut Memory) {
 // }
 
 fn trap_puts(register: &mut Register, memory: &Memory) {
-    let mut c = mem_read(register.R_R0, memory);
-    while memory[c as usize] != 0 {
-        print!("{}", memory[c as usize] as u8 as char);
+    let mut c = memory.read(register.R_R0);
+    while memory.read(c) != 0 {
+        print!("{}", memory.read(c) as u8 as char);
         c += 1;
     }
     flush_stdout();
@@ -393,11 +391,11 @@ fn trap_in(register: &mut Register) {
 // }
 
 fn trap_putsp(register: &mut Register, memory: &Memory) {
-    let mut c = mem_read(register.R_R0, memory);
-    while memory[c as usize] != 0 {
-        let char1 = memory[c as usize] & 0xFF;
+    let mut c = memory.read(register.R_R0);
+    while memory.read(c) != 0 {
+        let char1 = memory.read(c) & 0xFF;
         print!("{}", char1 as u8 as char);
-        let char2 = memory[c as usize] >> 8;
+        let char2 = memory.read(c) >> 8;
         if char2 != 0 {
             print!("{}", char2 as u8 as char);
         }

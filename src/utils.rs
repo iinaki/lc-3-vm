@@ -23,7 +23,7 @@ pub fn read_image_file(path: &str, memory: &mut Memory) -> Result<(), Error> {
     // Convert the buffer into u16 instructions and place them in memory
     for (i, chunk) in instruction_buffer.chunks(2).enumerate() {
         let instruction = swap(u16::from_be_bytes([chunk[0], chunk[1]]));
-        memory[(origin as usize) + i] = instruction;
+        memory.write((origin as usize + i) as u16, instruction);
     }
 
     Ok(())
