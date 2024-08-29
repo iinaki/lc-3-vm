@@ -1,6 +1,10 @@
 use std::{env, process};
 
-use lc_3_vm::{memory::Memory, register::Register, opcode::Opcode, condition_flag::ConditionFlag, operations::handle_operations};
+use lc_3_vm::{
+    memory::Memory,
+    operations::{handle_operations, mem_read, FL_ZRO},
+    register::Register,
+};
 
 const MEMORY_MAX: usize = 1 << 16;
 const PC_START: u16 = 0x3000;
@@ -31,7 +35,7 @@ fn main() {
     // @{Setup}
 
     /* since exactly one condition flag should be set at any given time, set the Z flag */
-    register.R_COND = ConditionFlag::FL_ZRO;
+    register.R_COND = FL_ZRO;
 
     /* set the PC to starting position */
     /* 0x3000 is the default */
@@ -40,7 +44,8 @@ fn main() {
     let running = true;
     while running {
         /* FETCH */
-        let instr: u16 = mem_read(register.R_PC += 1);
+        register.R_PC += 1;
+        let instr: u16 = mem_read(register.R_PC, &memory);
         let op: u16 = instr >> 12;
 
         handle_operations(&mut register, instr, op, &mut memory);
