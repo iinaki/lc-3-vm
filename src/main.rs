@@ -2,7 +2,7 @@ use std::{env, process};
 
 use lc_3_vm::{
     memory::Memory,
-    operations::{handle_operations, mem_read, FL_ZRO},
+    operations::{handle_operations, mem_read},
     register::Register,
 };
 
@@ -10,7 +10,7 @@ const MEMORY_MAX: usize = 1 << 16;
 const PC_START: u16 = 0x3000;
 
 fn read_image(file_name: &str) -> bool {
-    true // Placeholde
+    true // Placeholder
 }
 
 fn main() {
@@ -34,21 +34,19 @@ fn main() {
 
     // @{Setup}
 
-    /* since exactly one condition flag should be set at any given time, set the Z flag */
-    register.R_COND = FL_ZRO;
-
     /* set the PC to starting position */
     /* 0x3000 is the default */
     register.R_PC = PC_START;
 
-    let running = true;
+    let mut running = true;
     while running {
         /* FETCH */
         register.R_PC += 1;
         let instr: u16 = mem_read(register.R_PC, &memory);
         let op: u16 = instr >> 12;
 
-        handle_operations(&mut register, instr, op, &mut memory);
+        handle_operations(&mut register, instr, op, &mut memory, &mut running);
     }
     //@{Shutdown}
+    process::exit(1);
 }

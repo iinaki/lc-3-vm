@@ -1,37 +1,6 @@
-use std::mem;
+use std::{io::{Read, Write}, process};
 
-use crate::{memory::Memory, register::Register};
-
-// CONDITION FLAGS
-const FL_POS: u16 = 1 << 0; /* P */
-pub const FL_ZRO: u16 = 1 << 1; /* Z */
-const FL_NEG: u16 = 1 << 2; /* N */
-
-// OP CODES
-const OP_BR: u16 = 0; /* branch */
-const OP_ADD: u16 = 1; /* add  */
-const OP_LD: u16 = 2; /* load */
-const OP_ST: u16 = 3; /* store */
-const OP_JSR: u16 = 4; /* jump register */
-const OP_AND: u16 = 5; /* bitwise and */
-const OP_LDR: u16 = 6; /* load register */
-const OP_STR: u16 = 7; /* store register */
-const OP_RTI: u16 = 8; /* unused */
-const OP_NOT: u16 = 9; /* bitwise not */
-const OP_LDI: u16 = 10; /* load indirect */
-const OP_STI: u16 = 11; /* store indirect */
-const OP_JMP: u16 = 12; /* jump */
-const OP_RES: u16 = 13; /* reserved (unused) */
-const OP_LEA: u16 = 14; /* load effective address */
-const OP_TRAP: u16 = 15; /* execute trap */
-
-// TRAP CODES
-const TRAP_GETC: u16 = 0x20; /* get character from keyboard, not echoed onto the terminal */
-const TRAP_OUT: u16 = 0x21; /* output a character */
-const TRAP_PUTS: u16 = 0x22; /* output a word string */
-const TRAP_IN: u16 = 0x23; /* get character from keyboard, echoed onto the terminal */
-const TRAP_PUTSP: u16 = 0x24; /* output a byte string */
-const TRAP_HALT: u16 = 0x25; /* halt the program */
+use crate::{constants::{FL_NEG, FL_POS, FL_ZRO, OP_ADD, OP_AND, OP_BR, OP_JMP, OP_JSR, OP_LD, OP_LDI, OP_LDR, OP_LEA, OP_NOT, OP_ST, OP_STI, OP_STR, OP_TRAP, TRAP_GETC, TRAP_IN, TRAP_OUT, TRAP_PUTS, TRAP_PUTSP}, memory::Memory, register::Register};
 
 pub fn mem_read(address: u16, memory: &Memory) -> u16 {
     memory[address as usize] as u16
@@ -49,6 +18,16 @@ fn sign_extend(mut x: u16, bit_count: u16) -> u16 {
         x |= 0xFFFF << bit_count;
     }
     x
+}
+
+/// Flushes the stdout buffer
+fn flush_stdout() {
+    match std::io::stdout().flush() {
+        Ok(_) => {},
+        Err(e) => {
+            println!("Error flushing stdout: {}", e);
+        },
+    };
 }
 
 // void update_flags(uint16_t r)
@@ -334,19 +313,118 @@ fn trap_puts(register: &mut Register, memory: &Memory) {
         print!("{}", memory[c as usize] as u8 as char);
         c += 1;
     }
+    flush_stdout();
 }
 
-fn handle_trap(register: &mut Register, instr: u16, memory: &mut Memory) {
-    // reg[R_R7] = reg[R_PC];
+// /* read a single ASCII char */
+// reg[R_R0] = (uint16_t)getchar();
+// update_flags(R_R0);
+
+fn trap_getc(register: &mut Register) {
+    let mut buffer = [0; 1];
+    register.R_R0 = match std::io::stdin().read_exact(&mut buffer) {
+        Ok(_) => {
+            buffer[0] as u16
+        },
+        Err(e) => {
+            println!("Error reading from stdin: {}", e);
+            0
+        },
+    };
+    update_flags(register, register.R_R0);
+}
+
+// TRAP OUT
+// putc((char)reg[R_R0], stdout);
+// fflush(stdout);
+
+fn trap_out(register: &mut Register) {
+    print!("{}", register.R_R0 as u8 as char);
+    flush_stdout();
+}
+
+// TRAP IN {
+//     printf("Enter a character: ");
+//     char c = getchar();
+//     putc(c, stdout);
+//     fflush(stdout);
+//     reg[R_R0] = (uint16_t)c;
+//     update_flags(R_R0);
+// }
+
+fn trap_in(register: &mut Register) {
+    print!("Enter a character: ");
+    let mut buffer = [0; 1];
+    let c = match std::io::stdin().read_exact(&mut buffer) {
+        Ok(_) => {
+            buffer[0] as char
+        },
+        Err(e) => {
+            println!("Error reading from stdin: {}", e);
+            ' '
+        },
+    };
+    print!("{}", c);
+    flush_stdout();
+    register.R_R0 = c as u16;
+
+    update_flags(register, register.R_R0);
+}
+
+// TRAP PUTSP
+// {
+//     /* one char per byte (two bytes per word)
+//        here we need to swap back to
+//        big endian format */
+//     uint16_t* c = memory + reg[R_R0];
+//     while (*c)
+//     {
+//         char char1 = (*c) & 0xFF;
+//         putc(char1, stdout);
+//         char char2 = (*c) >> 8;
+//         if (char2) putc(char2, stdout);
+//         ++c;
+//     }
+//     fflush(stdout);
+// }
+
+fn trap_putsp(register: &mut Register, memory: &Memory) {
+    let mut c = mem_read(register.R_R0, memory);
+    while memory[c as usize] != 0 {
+        let char1 = memory[c as usize] & 0xFF;
+        print!("{}", char1 as u8 as char);
+        let char2 = memory[c as usize] >> 8;
+        if char2 != 0 {
+            print!("{}", char2 as u8 as char);
+        }
+        c += 1;
+    }
+    flush_stdout();
+}
+
+// TRAP HALt
+// puts("HALT");
+// fflush(stdout);
+// running = 0;
+
+fn trap_halt(running: &mut bool) {
+    println!("HALT");
+    flush_stdout();
+    *running = false;
+}
+
+fn handle_trap(register: &mut Register, instr: u16, memory: &mut Memory, running: &mut bool) {
     register.R_R7 = register.R_PC;
 
     let trap_instr = instr & 0xFF;
     match trap_instr {
         TRAP_GETC => {
             // @{TRAP GETC}
+            trap_getc(register);
         }
         TRAP_OUT => {
             // @{TRAP OUT}
+            trap_out(register);
         }
         TRAP_PUTS => {
             // @{TRAP PUTS}
@@ -354,20 +432,20 @@ fn handle_trap(register: &mut Register, instr: u16, memory: &mut Memory) {
         }
         TRAP_IN => {
             // @{TRAP IN}
+            trap_in(register);
         }
         TRAP_PUTSP => {
             // @{TRAP PUTSP}
-        }
-        TRAP_HALT => {
-            // @{TRAP HALT}
+            trap_putsp(register, memory);
         }
         _ => {
-            // @{BAD TRAP}
+            // @{TRAP HALT} or @{BAD TRAP}
+            trap_halt(running);
         }
     }
 }
 
-pub fn handle_operations(register: &mut Register, instr: u16, op: u16, memory: &mut Memory) {
+pub fn handle_operations(register: &mut Register, instr: u16, op: u16, memory: &mut Memory, running: &mut bool) {
     match op {
         OP_ADD => {
             // @{ADD}
@@ -423,10 +501,11 @@ pub fn handle_operations(register: &mut Register, instr: u16, op: u16, memory: &
         }
         OP_TRAP => {
             // @{TRAP}
-            handle_trap(register, instr, memory);
+            handle_trap(register, instr, memory, running);
         }
         _ => {
             // @{BAD OPCODE}
+            trap_halt(running);
         }
     }
 }

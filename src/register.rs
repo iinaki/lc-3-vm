@@ -1,4 +1,4 @@
-use crate::operations::FL_ZRO;
+use crate::constants::FL_ZRO;
 
 pub struct Register {
     pub R_R0: u16,
