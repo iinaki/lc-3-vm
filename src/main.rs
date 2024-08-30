@@ -1,12 +1,19 @@
-use std::{env, process};
+use std::{env, os::fd, process};
+use libc::{signal, SIGINT, STDIN_FILENO};
+use termios::*;
 
 use lc_3_vm::{
-    memory::Memory, operations::handle_operations, register::Register, utils::read_image_file,
+    input_buffering::{disable_input_buffering, handle_interrupt}, memory::Memory, operations::handle_operations, register::Register, utils::read_image_file
 };
 
 fn main() {
     let mut memory = Memory::new();
     let mut register = Register::new();
+
+    let mut termios = Termios::from_fd(STDIN_FILENO).unwrap();
+
+    unsafe { signal(SIGINT, handle_interrupt as usize) };
+    disable_input_buffering(&mut termios);
 
     // @{Load Arguments}
     // handle de args

@@ -209,7 +209,7 @@ fn op_jsr(register: &mut Register, instr: u16) {
 //     update_flags(r0);
 // }
 
-fn op_ld(register: &mut Register, instr: u16, memory: &Memory) {
+fn op_ld(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
     register.set(r0, memory.read(r0 + pc_offset));
@@ -226,10 +226,12 @@ fn op_ld(register: &mut Register, instr: u16, memory: &Memory) {
 //     update_flags(r0);
 // }
 
-fn op_ldi(register: &mut Register, instr: u16, memory: &Memory) {
+fn op_ldi(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
-    register.set(r0, memory.read(memory.read(r0 + pc_offset)));
+    let addr = memory.read(r0 + pc_offset);
+
+    register.set(r0, memory.read(addr));
     update_flags(register, r0);
 }
 
@@ -241,7 +243,7 @@ fn op_ldi(register: &mut Register, instr: u16, memory: &Memory) {
 //     update_flags(r0);
 // }
 
-fn op_ldr(register: &mut Register, instr: u16, memory: &Memory) {
+fn op_ldr(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
     let offset = sign_extend(instr & 0x3F, 6);
@@ -285,7 +287,8 @@ fn op_st(register: &mut Register, instr: u16, memory: &mut Memory) {
 fn op_sti(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
-    memory.write(memory.read(r0 + pc_offset), register.get(r0));
+    let addr = memory.read(r0 + pc_offset);
+    memory.write(addr, register.get(r0));
 }
 
 // STR {
@@ -313,7 +316,7 @@ fn op_str(register: &mut Register, instr: u16, memory: &mut Memory) {
 //     fflush(stdout);
 // }
 
-fn trap_puts(register: &mut Register, memory: &Memory) {
+fn trap_puts(register: &mut Register, memory: &mut Memory) {
     let mut c = memory.read(register.R_R0);
     while memory.read(c) != 0 {
         print!("{}", memory.read(c) as u8 as char);
@@ -326,7 +329,7 @@ fn trap_puts(register: &mut Register, memory: &Memory) {
 // reg[R_R0] = (uint16_t)getchar();
 // update_flags(R_R0);
 
-fn trap_getc(register: &mut Register) {
+pub fn trap_getc(register: &mut Register) {
     let mut buffer = [0; 1];
     register.R_R0 = match std::io::stdin().read_exact(&mut buffer) {
         Ok(_) => buffer[0] as u16,
@@ -390,7 +393,7 @@ fn trap_in(register: &mut Register) {
 //     fflush(stdout);
 // }
 
-fn trap_putsp(register: &mut Register, memory: &Memory) {
+fn trap_putsp(register: &mut Register, memory: &mut Memory) {
     let mut c = memory.read(register.R_R0);
     while memory.read(c) != 0 {
         let char1 = memory.read(c) & 0xFF;
@@ -481,11 +484,11 @@ pub fn handle_operations(
         }
         OP_LD => {
             // @{LD}
-            op_ld(register, instr, &memory);
+            op_ld(register, instr, memory);
         }
         OP_LDI => {
             // @{LDI}
-            op_ldi(register, instr, &memory);
+            op_ldi(register, instr, memory);
         }
         OP_LDR => {
             // @{LDR}
