@@ -38,11 +38,11 @@ mod tests {
         let mut register = Register::new();
         register.pc = 0x3000;
 
-        let instr: u16 = 0b0100_1_00000010000; 
+        let instr: u16 = 0b0100_1_00000010000;
         op_jsr(&mut register, instr);
 
-        assert_eq!(register.r7, 0x3000); 
-        assert_eq!(register.pc, 0x3010); 
+        assert_eq!(register.r7, 0x3000);
+        assert_eq!(register.pc, 0x3010);
     }
 
     #[test]
@@ -50,10 +50,10 @@ mod tests {
         let mut register = Register::new();
         register.pc = 0x3000;
 
-        let instr: u16 = 0b0100_1_11111111111; 
+        let instr: u16 = 0b0100_1_11111111111;
         op_jsr(&mut register, instr);
 
-        assert_eq!(register.r7, 0x3000); 
+        assert_eq!(register.r7, 0x3000);
         assert_eq!(register.pc, 0x2FFF);
     }
 
@@ -61,28 +61,28 @@ mod tests {
     fn test_op_jsrr() {
         let mut register = Register::new();
         register.pc = 0x3000;
-        register.set(2, 0x4000); 
+        register.set(2, 0x4000);
 
-        let instr: u16 = 0b0100_0_000_010_000_000; 
+        let instr: u16 = 0b0100_0_000_010_000_000;
         op_jsr(&mut register, instr);
 
-        assert_eq!(register.r7, 0x3000); 
-        assert_eq!(register.pc, 0x4000); 
+        assert_eq!(register.r7, 0x3000);
+        assert_eq!(register.pc, 0x4000);
     }
 
     #[test]
     fn test_op_jsr_preserves_other_registers() {
         let mut register = Register::new();
         register.pc = 0x3000;
-        register.set(1, 0xABCD); 
-        register.set(2, 0x1234); 
+        register.set(1, 0xABCD);
+        register.set(2, 0x1234);
 
-        let instr: u16 = 0b0100_0_000_010_000_000; 
+        let instr: u16 = 0b0100_0_000_010_000_000;
         op_jsr(&mut register, instr);
 
         assert_eq!(register.r7, 0x3000);
         assert_eq!(register.pc, 0x1234);
-        assert_eq!(register.get(1), 0xABCD); 
+        assert_eq!(register.get(1), 0xABCD);
     }
 
     #[test]
@@ -90,13 +90,13 @@ mod tests {
         let mut register = Register::new();
         register.pc = 0x3000;
 
-        let instr_jsr: u16 = 0b0100_1_00000000010; 
+        let instr_jsr: u16 = 0b0100_1_00000000010;
         op_jsr(&mut register, instr_jsr);
 
         assert_eq!(register.r7, 0x3000);
-        assert_eq!(register.pc, 0x3002); 
+        assert_eq!(register.pc, 0x3002);
 
         register.pc = register.r7;
-        assert_eq!(register.pc, 0x3000); 
+        assert_eq!(register.pc, 0x3000);
     }
 }
