@@ -1,7 +1,7 @@
 use std::{fs::File, io::Error, io::Read};
 
-use crate::memory::Memory;
 use crate::constants::MEMORY_SIZE;
+use crate::memory::Memory;
 
 fn swap(x: u16) -> u16 {
     (x << 8) | (x >> 8)

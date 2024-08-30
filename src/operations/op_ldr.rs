@@ -1,7 +1,4 @@
-use crate::{
-    memory::Memory,
-    register::Register,
-};
+use crate::{memory::Memory, register::Register};
 
 use super::{sign_extend, update_flags};
 

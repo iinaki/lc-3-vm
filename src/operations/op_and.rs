@@ -1,5 +1,3 @@
-
-
 use crate::register::Register;
 
 use super::{sign_extend, update_flags};
@@ -45,73 +43,73 @@ mod tests {
     #[test]
     fn test_op_and_with_registers() {
         let mut register = Register::new();
-        register.set(1, 0b1100);  // Set R1 to 0b1100
-        register.set(2, 0b1010);  // Set R2 to 0b1010
+        register.set(1, 0b1100);
+        register.set(2, 0b1010);
 
-        let instr: u16 = 0b0101_000_001_000_010; // AND R0, R1, R2
+        let instr: u16 = 0b0101_000_001_000_010;
         op_and(&mut register, instr);
 
-        assert_eq!(register.get(0), 0b1000); // R0 should be 0b1000 (0b1100 & 0b1010)
+        assert_eq!(register.get(0), 0b1000);
     }
 
     #[test]
     fn test_op_and_with_immediate() {
         let mut register = Register::new();
-        register.set(1, 0b1100);  // Set R1 to 0b1100
+        register.set(1, 0b1100);
 
-        let instr: u16 = 0b0101_000_001_1_00101; // AND R0, R1, #5 (0b0101)
+        let instr: u16 = 0b0101_000_001_1_00101;
         op_and(&mut register, instr);
 
-        assert_eq!(register.get(0), 0b0100); // R0 should be 0b0100 (0b1100 & 0b0101)
+        assert_eq!(register.get(0), 0b0100);
     }
 
     #[test]
     fn test_op_and_with_zero_result() {
         let mut register = Register::new();
-        register.set(1, 0b1100);  // Set R1 to 0b1100
+        register.set(1, 0b1100);
 
-        let instr: u16 = 0b0101_000_001_1_00110; // AND R0, R1, #6 (0b0110)
+        let instr: u16 = 0b0101_000_001_1_00110;
         op_and(&mut register, instr);
 
-        assert_eq!(register.get(0), 0b0100); // R0 should be 0b0100 (0b1100 & 0b0110)
-        assert_eq!(register.cond, FL_POS); // Condition flag should be positive
+        assert_eq!(register.get(0), 0b0100);
+        assert_eq!(register.cond, FL_POS);
     }
 
     #[test]
     fn test_op_and_with_negative_result() {
         let mut register = Register::new();
-        register.set(1, 0xFFFF);  // Set R1 to 0xFFFF
+        register.set(1, 0xFFFF);
 
-        let instr: u16 = 0b0101_000_001_1_11111; // AND R0, R1, #-1 (immediate value, sign-extended to 0xFFFF)
+        let instr: u16 = 0b0101_000_001_1_11111;
         op_and(&mut register, instr);
 
-        assert_eq!(register.get(0), 0xFFFF); // R0 should be 0xFFFF (0xFFFF & 0xFFFF)
-        assert_eq!(register.cond, FL_NEG); // Condition flag should be negative
+        assert_eq!(register.get(0), 0xFFFF);
+        assert_eq!(register.cond, FL_NEG);
     }
 
     #[test]
     fn test_op_and_with_positive_result() {
         let mut register = Register::new();
-        register.set(1, 0b0111);  // Set R1 to 0b0111
-        register.set(2, 0b0011);  // Set R2 to 0b0011
+        register.set(1, 0b0111);
+        register.set(2, 0b0011);
 
-        let instr: u16 = 0b0101_000_001_000_010; // AND R0, R1, R2
+        let instr: u16 = 0b0101_000_001_000_010;
         op_and(&mut register, instr);
 
-        assert_eq!(register.get(0), 0b0011); // R0 should be 0b0011 (0b0111 & 0b0011)
-        assert_eq!(register.cond, FL_POS); // Condition flag should be positive
+        assert_eq!(register.get(0), 0b0011);
+        assert_eq!(register.cond, FL_POS);
     }
 
     #[test]
     fn test_op_and_with_zero_cond_flag() {
         let mut register = Register::new();
-        register.set(1, 0b0101);  // Set R1 to 0b0101
-        register.set(2, 0b1010);  // Set R2 to 0b1010
+        register.set(1, 0b0101);
+        register.set(2, 0b1010);
 
-        let instr: u16 = 0b0101_000_001_000_010; // AND R0, R1, R2
+        let instr: u16 = 0b0101_000_001_000_010;
         op_and(&mut register, instr);
 
-        assert_eq!(register.get(0), 0b0000); // R0 should be 0b0000 (0b0101 & 0b1010)
-        assert_eq!(register.cond, FL_ZRO); // Condition flag should be zero
+        assert_eq!(register.get(0), 0b0000);
+        assert_eq!(register.cond, FL_ZRO);
     }
 }

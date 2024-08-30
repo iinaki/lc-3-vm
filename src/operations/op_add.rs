@@ -2,7 +2,6 @@ use crate::register::Register;
 
 use super::{sign_extend, update_flags};
 
-
 // ADD {
 //     /* destination register (DR) */
 //     uint16_t r0 = (instr >> 9) & 0x7;
@@ -44,24 +43,26 @@ pub fn op_add(register: &mut Register, instr: u16) {
     update_flags(register, r0);
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::{constants::{FL_NEG, FL_POS, FL_ZRO}, register::Register};
     use super::*;
+    use crate::{
+        constants::{FL_NEG, FL_POS, FL_ZRO},
+        register::Register,
+    };
 
     // ADD TESTS
     #[test]
     fn test_op_add_with_registers() {
         let mut register = Register::new();
-        register.set(1, 10);  
-        register.set(2, 15);  
+        register.set(1, 10);
+        register.set(2, 15);
 
         let instr: u16 = 0b0001_000_001_000_010;
         op_add(&mut register, instr);
         println!("REGISTERS: {:?}", register);
 
-        assert_eq!(register.get(0), 25); 
+        assert_eq!(register.get(0), 25);
     }
 
     #[test]
@@ -69,16 +70,16 @@ mod tests {
         let mut register = Register::new();
         register.set(1, 10);
 
-        let instr: u16 = 0b0001_000_001_1_00001; 
+        let instr: u16 = 0b0001_000_001_1_00001;
         op_add(&mut register, instr);
 
-        assert_eq!(register.get(0), 11); 
+        assert_eq!(register.get(0), 11);
     }
 
     #[test]
     fn test_op_add_with_immediate_negative() {
         let mut register = Register::new();
-        register.set(1, 10); 
+        register.set(1, 10);
 
         let instr: u16 = 0b0001_000_001_1_11111;
         op_add(&mut register, instr);
@@ -94,31 +95,31 @@ mod tests {
         let instr: u16 = 0b0001_000_001_1_11111;
         op_add(&mut register, instr);
 
-        assert_eq!(register.get(0), 0xFFFF); 
-        assert_eq!(register.cond, FL_NEG); 
+        assert_eq!(register.get(0), 0xFFFF);
+        assert_eq!(register.cond, FL_NEG);
     }
 
     #[test]
     fn test_op_add_with_zero_result() {
         let mut register = Register::new();
-        register.set(1, 1); 
+        register.set(1, 1);
 
-        let instr: u16 = 0b0001_000_001_1_11111; 
+        let instr: u16 = 0b0001_000_001_1_11111;
         op_add(&mut register, instr);
 
-        assert_eq!(register.get(0), 0); 
-        assert_eq!(register.cond, FL_ZRO); 
+        assert_eq!(register.get(0), 0);
+        assert_eq!(register.cond, FL_ZRO);
     }
 
     #[test]
     fn test_op_add_with_positive_result() {
         let mut register = Register::new();
-        register.set(1, 1); 
+        register.set(1, 1);
 
         let instr: u16 = 0b0001_000_001_1_00001;
         op_add(&mut register, instr);
 
-        assert_eq!(register.get(0), 2); 
-        assert_eq!(register.cond, FL_POS); 
+        assert_eq!(register.get(0), 2);
+        assert_eq!(register.cond, FL_POS);
     }
 }

@@ -1,10 +1,7 @@
 use std::io::Read;
 
 use crate::{
-    constants::{
-        TRAP_GETC, TRAP_IN, TRAP_OUT, TRAP_PUTS,
-        TRAP_PUTSP,
-    },
+    constants::{TRAP_GETC, TRAP_IN, TRAP_OUT, TRAP_PUTS, TRAP_PUTSP},
     memory::Memory,
     register::Register,
 };

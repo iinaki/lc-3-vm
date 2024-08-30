@@ -2,8 +2,8 @@ use std::mem::zeroed;
 use std::os::unix::io::RawFd;
 
 // struct termios original_tio;
-use termios::*;
 use libc::{c_int, fd_set, select, timeval, FD_SET, FD_ZERO, STDIN_FILENO};
+use termios::*;
 
 // void disable_input_buffering()
 // {
@@ -14,7 +14,7 @@ use libc::{c_int, fd_set, select, timeval, FD_SET, FD_ZERO, STDIN_FILENO};
 // }
 
 pub fn disable_input_buffering(termios: &mut Termios) {
-    match tcgetattr(STDIN_FILENO, termios){
+    match tcgetattr(STDIN_FILENO, termios) {
         Ok(_) => (),
         Err(e) => {
             println!("Error getting terminal attributes: {}", e);
@@ -59,7 +59,15 @@ pub fn check_key() -> bool {
         tv_usec: 0,
     };
 
-    let result = unsafe { select(1, &mut readfds, std::ptr::null_mut(), std::ptr::null_mut(), &mut timeout) };
+    let result = unsafe {
+        select(
+            1,
+            &mut readfds,
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            &mut timeout,
+        )
+    };
 
     result != 0
 }

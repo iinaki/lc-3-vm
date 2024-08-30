@@ -1,9 +1,14 @@
-use std::{env, process};
 use libc::{signal, SIGINT, STDIN_FILENO};
+use std::{env, process};
 use termios::*;
 
 use lc_3_vm::{
-    constants::MEMORY_SIZE, input_buffering::{disable_input_buffering, handle_interrupt}, memory::Memory, operations::handle_operations, register::Register, utils::read_image_file
+    constants::MEMORY_SIZE,
+    input_buffering::{disable_input_buffering, handle_interrupt},
+    memory::Memory,
+    operations::handle_operations,
+    register::Register,
+    utils::read_image_file,
 };
 
 fn main() {

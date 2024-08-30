@@ -1,6 +1,9 @@
 use std::io::Read;
 
-use crate::{constants::{MEMORY_SIZE, MR_KBDR, MR_KBSR}, input_buffering::check_key};
+use crate::{
+    constants::{MEMORY_SIZE, MR_KBDR, MR_KBSR},
+    input_buffering::check_key,
+};
 
 #[derive(Debug)]
 pub struct Memory {
@@ -28,7 +31,6 @@ impl Memory {
                         0
                     }
                 };
-                 
             } else {
                 self.memory[MR_KBSR as usize] = 0;
             }
