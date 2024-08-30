@@ -92,11 +92,14 @@ fn op_add(register: &mut Register, instr: u16) {
     let imm_flag = (instr >> 5) & 0x1;
 
     if imm_flag == 1 {
-        let imm5 = sign_extend(instr & 0x1F, 5);
-        register.set(r0, register.get(r1) + imm5);
+        let imm5 = sign_extend(instr & 0x1F, 5) as i16;
+        register.set(r0, (register.get(r1) as i16 + imm5) as u16);
     } else {
         let r2 = instr & 0x7;
         register.set(r0, register.get(r1) + register.get(r2));
+        println!("R0: {}", r0);
+        println!("R1: {}", r1);
+        println!("R2: {}", r2);
     }
 
     update_flags(register, r0);
@@ -537,15 +540,16 @@ mod tests {
     use crate::{constants::FL_POS, register::Register};
     use super::*;
 
+    // BR TESTS
     #[test]
     fn br_branch_taken_positive_offset() {
         let mut register = Register::new(); 
         register.cond = FL_POS;
 
-        let instr: u16 = 0b0000_001_000000101; // Condition flag es Pos, PC offset is +5
+        let instr: u16 = 0b0000_001_000000101; 
         op_br(&mut register, instr);
 
-        assert_eq!(register.pc, 0x3005); // PC should have jumped to 0x3005
+        assert_eq!(register.pc, 0x3005);
     }
 
     #[test]
@@ -553,10 +557,10 @@ mod tests {
         let mut register = Register::new(); 
         register.cond = FL_POS;
 
-        let instr: u16 = 0b0000_010_000000101; // Condition flag es 0b010, zero PC offset is +5
+        let instr: u16 = 0b0000_010_000000101;
         op_br(&mut register, instr);
 
-        assert_eq!(register.pc, 0x3000); // PC should remain at 0x3000 because the condition was not met
+        assert_eq!(register.pc, 0x3000); 
     }
 
     #[test]
@@ -564,10 +568,10 @@ mod tests {
         let mut register = Register::new(); 
         register.cond = FL_POS;
 
-        let instr: u16 = 0b0000_001_111111011; // Condition flag is 0b001 (Positive), PC offset is -5 (sign extended from 0b111111011)
+        let instr: u16 = 0b0000_001_111111011; 
         op_br(&mut register, instr);
 
-        assert_eq!(register.pc, 0x2FFB); // PC should have jumped to 0x2FFB
+        assert_eq!(register.pc, 0x2FFB); 
     }
 
     #[test]
@@ -575,12 +579,84 @@ mod tests {
         let mut register = Register::new(); 
         register.cond = FL_POS;
 
-        let instr: u16 = 0b0000_001_000000000; // Condition flag is 0b001 (Positive), PC offset is 0
+        let instr: u16 = 0b0000_001_000000000; 
         op_br(&mut register, instr);
 
         println!("PC: {}", register.pc);
 
-        assert_eq!(register.pc, 0x3000); // PC should remain at 0x3000, as the offset is 0
+        assert_eq!(register.pc, 0x3000); 
+    }
+
+    // ADD TESTS
+    #[test]
+    fn test_op_add_with_registers() {
+        let mut register = Register::new();
+        register.set(1, 10);  
+        register.set(2, 15);  
+
+        let instr: u16 = 0b0001_000_001_000_010;
+        op_add(&mut register, instr);
+        println!("REGISTERS: {:?}", register);
+
+        assert_eq!(register.get(0), 25); 
+    }
+
+    #[test]
+    fn test_op_add_with_immediate_positive() {
+        let mut register = Register::new();
+        register.set(1, 10);
+
+        let instr: u16 = 0b0001_000_001_1_00001; 
+        op_add(&mut register, instr);
+
+        assert_eq!(register.get(0), 11); 
+    }
+
+    #[test]
+    fn test_op_add_with_immediate_negative() {
+        let mut register = Register::new();
+        register.set(1, 10); 
+
+        let instr: u16 = 0b0001_000_001_1_11111;
+        op_add(&mut register, instr);
+
+        assert_eq!(register.get(0), 9);
+    }
+
+    #[test]
+    fn test_op_add_with_negative_result() {
+        let mut register = Register::new();
+        register.set(1, 0);
+
+        let instr: u16 = 0b0001_000_001_1_11111;
+        op_add(&mut register, instr);
+
+        assert_eq!(register.get(0), 0xFFFF); 
+        assert_eq!(register.cond, FL_NEG); 
+    }
+
+    #[test]
+    fn test_op_add_with_zero_result() {
+        let mut register = Register::new();
+        register.set(1, 1); 
+
+        let instr: u16 = 0b0001_000_001_1_11111; 
+        op_add(&mut register, instr);
+
+        assert_eq!(register.get(0), 0); 
+        assert_eq!(register.cond, FL_ZRO); 
+    }
+
+    #[test]
+    fn test_op_add_with_positive_result() {
+        let mut register = Register::new();
+        register.set(1, 1); 
+
+        let instr: u16 = 0b0001_000_001_1_00001;
+        op_add(&mut register, instr);
+
+        assert_eq!(register.get(0), 2); 
+        assert_eq!(register.cond, FL_POS); 
     }
 
 }
