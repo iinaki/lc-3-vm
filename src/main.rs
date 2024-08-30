@@ -3,7 +3,6 @@ use std::{env, process};
 use termios::*;
 
 use lc_3_vm::{
-    constants::MEMORY_SIZE,
     input_buffering::{disable_input_buffering, handle_interrupt},
     memory::Memory,
     operations::handle_operations,
