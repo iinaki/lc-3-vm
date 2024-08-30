@@ -14,7 +14,13 @@ use libc::{c_int, fd_set, select, timeval, FD_SET, FD_ZERO, STDIN_FILENO};
 // }
 
 pub fn disable_input_buffering(termios: &mut Termios) {
-    tcgetattr(STDIN_FILENO, termios);
+    match tcgetattr(STDIN_FILENO, termios){
+        Ok(_) => (),
+        Err(e) => {
+            println!("Error getting terminal attributes: {}", e);
+            std::process::exit(2);
+        }
+    }
     termios.c_lflag &= !(ICANON | ECHO);
     tcsetattr(0, TCSANOW, termios).unwrap();
 }
@@ -64,7 +70,7 @@ pub fn check_key() -> bool {
 //     printf("\n");
 //     exit(-2);
 // }
-pub fn handle_interrupt(signal: c_int) {
+pub fn handle_interrupt(_signal: c_int) {
     restore_input_buffering(&Termios::from_fd(STDIN_FILENO).unwrap());
     println!();
     std::process::exit(-2);

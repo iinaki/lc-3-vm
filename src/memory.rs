@@ -1,9 +1,8 @@
 use std::io::Read;
 
-use crate::{constants::{MR_KBDR, MR_KBSR}, input_buffering::check_key, operations::trap_getc};
+use crate::{constants::{MEMORY_SIZE, MR_KBDR, MR_KBSR}, input_buffering::check_key};
 
-pub const MEMORY_SIZE: usize = 65536;
-
+#[derive(Debug)]
 pub struct Memory {
     pub memory: [u16; MEMORY_SIZE],
 }

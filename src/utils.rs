@@ -1,6 +1,7 @@
 use std::{fs::File, io::Error, io::Read};
 
-use crate::memory::{Memory, MEMORY_SIZE};
+use crate::memory::Memory;
+use crate::constants::MEMORY_SIZE;
 
 fn swap(x: u16) -> u16 {
     (x << 8) | (x >> 8)
@@ -18,10 +19,12 @@ pub fn read_image_file(path: &str, memory: &mut Memory) -> Result<(), Error> {
 
     let mut instruction_buffer = vec![0u8; max_read * 2];
 
-    let _read_bytes = file.read(&mut instruction_buffer)?;
+    let read_bytes = file.read(&mut instruction_buffer)?;
 
-    // Convert the buffer into u16 instructions and place them in memory
     for (i, chunk) in instruction_buffer.chunks(2).enumerate() {
+        if i >= read_bytes / 2 {
+            break;
+        }
         let instruction = swap(u16::from_be_bytes([chunk[0], chunk[1]]));
         memory.write((origin as usize + i) as u16, instruction);
     }

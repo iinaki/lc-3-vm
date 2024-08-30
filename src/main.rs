@@ -1,9 +1,9 @@
-use std::{env, os::fd, process};
+use std::{env, process};
 use libc::{signal, SIGINT, STDIN_FILENO};
 use termios::*;
 
 use lc_3_vm::{
-    input_buffering::{disable_input_buffering, handle_interrupt}, memory::Memory, operations::handle_operations, register::Register, utils::read_image_file
+    constants::MEMORY_SIZE, input_buffering::{disable_input_buffering, handle_interrupt}, memory::Memory, operations::handle_operations, register::Register, utils::read_image_file
 };
 
 fn main() {
@@ -36,8 +36,12 @@ fn main() {
     let mut running = true;
     while running {
         /* FETCH */
-        register.R_PC += 1;
-        let instr = memory.read(register.R_PC);
+        if register.pc == 65535 {
+            println!("Reached end of memory");
+            break;
+        }
+        register.pc += 1;
+        let instr = memory.read(register.pc);
         let op = instr >> 12;
 
         handle_operations(&mut register, instr, op, &mut memory, &mut running);

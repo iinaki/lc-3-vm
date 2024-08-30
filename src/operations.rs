@@ -22,10 +22,11 @@ use crate::{
 //     return x;
 // }
 fn sign_extend(mut x: u16, bit_count: u16) -> u16 {
-    if (x >> (bit_count - 1)) & 1 == 1 {
-        x |= 0xFFFF << bit_count;
+    if (x >> (bit_count - 1)) & 1 != 0 {
+        x | (0xFFFF << bit_count)
+    } else {
+        x
     }
-    x
 }
 
 /// Flushes the stdout buffer
@@ -55,11 +56,11 @@ fn flush_stdout() {
 // }
 fn update_flags(register: &mut Register, r: u16) {
     if register.get(r) == 0 {
-        register.R_COND = FL_ZRO;
+        register.cond = FL_ZRO;
     } else if (register.get(r) >> 15) & 1 == 1 {
-        register.R_COND = FL_NEG;
+        register.cond = FL_NEG;
     } else {
-        register.R_COND = FL_POS;
+        register.cond = FL_POS;
     }
 }
 
@@ -156,11 +157,18 @@ fn op_not(register: &mut Register, instr: u16) {
 //     }
 // }
 
+// fn op_br(register: &mut Register, instr: u16) {
+//     let pc_offset = sign_extend(instr & 0x1FF, 9);
+//     let cond_flag = (instr >> 9) & 0x7;
+//     if cond_flag & register.cond as u16 != 0 {
+//         register.pc += pc_offset;
+//     }
+// }
 fn op_br(register: &mut Register, instr: u16) {
-    let pc_offset = sign_extend(instr & 0x1FF, 9);
+    let pc_offset = sign_extend(instr & 0x1FF, 9) as i16; 
     let cond_flag = (instr >> 9) & 0x7;
-    if cond_flag & register.R_COND as u16 != 0 {
-        register.R_PC += pc_offset;
+    if cond_flag & register.cond as u16 != 0 {
+        register.pc = ((register.pc as i16) + pc_offset) as u16; 
     }
 }
 
@@ -172,7 +180,7 @@ fn op_br(register: &mut Register, instr: u16) {
 
 fn op_jmp(register: &mut Register, instr: u16) {
     let r1 = (instr >> 6) & 0x7;
-    register.R_PC = register.get(r1);
+    register.pc = register.get(r1);
 }
 
 // {
@@ -192,13 +200,13 @@ fn op_jmp(register: &mut Register, instr: u16) {
 
 fn op_jsr(register: &mut Register, instr: u16) {
     let long_flag = (instr >> 11) & 1;
-    register.R_R7 = register.R_PC;
+    register.r7 = register.pc;
     if long_flag == 1 {
         let long_pc_offset = sign_extend(instr & 0x7FF, 11);
-        register.R_PC += long_pc_offset; /* JSR */
+        register.pc += long_pc_offset; /* JSR */
     } else {
         let r1 = (instr >> 6) & 0x7;
-        register.R_PC = register.get(r1); /* JSRR */
+        register.pc = register.get(r1); /* JSRR */
     }
 }
 
@@ -261,7 +269,7 @@ fn op_ldr(register: &mut Register, instr: u16, memory: &mut Memory) {
 fn op_lea(register: &mut Register, instr: u16) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
-    register.set(r0, register.R_PC + pc_offset);
+    register.set(r0, register.pc + pc_offset);
     update_flags(register, r0);
 }
 
@@ -317,7 +325,7 @@ fn op_str(register: &mut Register, instr: u16, memory: &mut Memory) {
 // }
 
 fn trap_puts(register: &mut Register, memory: &mut Memory) {
-    let mut c = memory.read(register.R_R0);
+    let mut c = memory.read(register.r0);
     while memory.read(c) != 0 {
         print!("{}", memory.read(c) as u8 as char);
         c += 1;
@@ -331,14 +339,14 @@ fn trap_puts(register: &mut Register, memory: &mut Memory) {
 
 pub fn trap_getc(register: &mut Register) {
     let mut buffer = [0; 1];
-    register.R_R0 = match std::io::stdin().read_exact(&mut buffer) {
+    register.r0 = match std::io::stdin().read_exact(&mut buffer) {
         Ok(_) => buffer[0] as u16,
         Err(e) => {
             println!("Error reading from stdin: {}", e);
             0
         }
     };
-    update_flags(register, register.R_R0);
+    update_flags(register, register.r0);
 }
 
 // TRAP OUT
@@ -346,7 +354,7 @@ pub fn trap_getc(register: &mut Register) {
 // fflush(stdout);
 
 fn trap_out(register: &mut Register) {
-    print!("{}", register.R_R0 as u8 as char);
+    print!("{}", register.r0 as u8 as char);
     flush_stdout();
 }
 
@@ -371,9 +379,9 @@ fn trap_in(register: &mut Register) {
     };
     print!("{}", c);
     flush_stdout();
-    register.R_R0 = c as u16;
+    register.r0 = c as u16;
 
-    update_flags(register, register.R_R0);
+    update_flags(register, register.r0);
 }
 
 // TRAP PUTSP
@@ -394,7 +402,7 @@ fn trap_in(register: &mut Register) {
 // }
 
 fn trap_putsp(register: &mut Register, memory: &mut Memory) {
-    let mut c = memory.read(register.R_R0);
+    let mut c = memory.read(register.r0);
     while memory.read(c) != 0 {
         let char1 = memory.read(c) & 0xFF;
         print!("{}", char1 as u8 as char);
@@ -419,7 +427,7 @@ fn trap_halt(running: &mut bool) {
 }
 
 fn handle_trap(register: &mut Register, instr: u16, memory: &mut Memory, running: &mut bool) {
-    register.R_R7 = register.R_PC;
+    register.r7 = register.pc;
 
     let trap_instr = instr & 0xFF;
     match trap_instr {
@@ -457,6 +465,7 @@ pub fn handle_operations(
     memory: &mut Memory,
     running: &mut bool,
 ) {
+    println!("PERFORMING OP: {}", op);
     match op {
         OP_ADD => {
             // @{ADD}
@@ -516,7 +525,62 @@ pub fn handle_operations(
         }
         _ => {
             // @{BAD OPCODE}
+            println!("Bad opcode: {}", op);
             trap_halt(running);
         }
     }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use crate::{constants::FL_POS, register::Register};
+    use super::*;
+
+    #[test]
+    fn br_branch_taken_positive_offset() {
+        let mut register = Register::new(); 
+        register.cond = FL_POS;
+
+        let instr: u16 = 0b0000_001_000000101; // Condition flag es Pos, PC offset is +5
+        op_br(&mut register, instr);
+
+        assert_eq!(register.pc, 0x3005); // PC should have jumped to 0x3005
+    }
+
+    #[test]
+    fn br_branch_not_taken() {
+        let mut register = Register::new(); 
+        register.cond = FL_POS;
+
+        let instr: u16 = 0b0000_010_000000101; // Condition flag es 0b010, zero PC offset is +5
+        op_br(&mut register, instr);
+
+        assert_eq!(register.pc, 0x3000); // PC should remain at 0x3000 because the condition was not met
+    }
+
+    #[test]
+    fn br_branch_taken_negative_offset() {
+        let mut register = Register::new(); 
+        register.cond = FL_POS;
+
+        let instr: u16 = 0b0000_001_111111011; // Condition flag is 0b001 (Positive), PC offset is -5 (sign extended from 0b111111011)
+        op_br(&mut register, instr);
+
+        assert_eq!(register.pc, 0x2FFB); // PC should have jumped to 0x2FFB
+    }
+
+    #[test]
+    fn br_branch_zero_offset() {
+        let mut register = Register::new(); 
+        register.cond = FL_POS;
+
+        let instr: u16 = 0b0000_001_000000000; // Condition flag is 0b001 (Positive), PC offset is 0
+        op_br(&mut register, instr);
+
+        println!("PC: {}", register.pc);
+
+        assert_eq!(register.pc, 0x3000); // PC should remain at 0x3000, as the offset is 0
+    }
+
 }

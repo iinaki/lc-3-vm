@@ -1,3 +1,5 @@
+pub const MEMORY_SIZE: usize = 65536;
+
 /* 0x3000 is the default */
 pub const PC_START: u16 = 0x3000;
 
