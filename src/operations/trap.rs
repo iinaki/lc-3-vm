@@ -156,8 +156,10 @@ pub fn handle_trap(register: &mut Register, instr: u16, memory: &mut Memory, run
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Cursor;
+    use std::io::{self, Cursor, Write};
 
+    // TRAP GETC
+    
     fn trap_getc_with_input(register: &mut Register, input: &mut dyn std::io::Read) {
         let mut buffer = [0; 1];
         register.r0 = match input.read_exact(&mut buffer) {
@@ -186,5 +188,15 @@ mod tests {
 
         trap_getc_with_input(&mut register, &mut input);
         assert_eq!(register.r0, 0); 
+    }
+
+    // TRAP OUT
+    #[test]
+    fn test_trap_out() {
+        let mut register = Register::new();
+        register.r0 = 'A' as u16; 
+        
+        trap_out(&mut register);
+        // printea 'A' en stdout bien
     }
 }
