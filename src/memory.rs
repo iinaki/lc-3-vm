@@ -25,6 +25,7 @@ impl Memory {
 
     pub fn read(&mut self, address: u16) -> u16 {
         if address == MR_KBSR {
+            println!("Checking for key");
             if check_key() {
                 self.memory[MR_KBSR as usize] = 1 << 15;
 
