@@ -200,6 +200,7 @@ mod tests {
         // prints 'A' in stdout
     }
 
+    // TRAP PUTS
     #[test]
     fn test_trap_puts() {
         let mut register = Register::new();
@@ -215,5 +216,33 @@ mod tests {
         
         trap_puts(&mut register, &mut memory);
         // prints 'Hello' in stdout
+    }
+    
+    fn trap_in_with_input(register: &mut Register, input: &mut dyn std::io::Read) {
+        print!("Enter a character: ");
+        let mut buffer = [0; 1];
+        let c = match input.read_exact(&mut buffer) {
+            Ok(_) => buffer[0] as char,
+            Err(e) => {
+                println!("Error reading from stdin: {}", e);
+                ' '
+            }
+        };
+        print!("{}", c);
+        flush_stdout();
+        register.set(0, c as u16);
+    
+        update_flags(register, 0);
+    }
+
+    // TRAP IN
+    #[test]
+    fn test_trap_in() {
+        let mut register = Register::new();
+        let mut input = Cursor::new(vec![b'F']);
+
+        trap_in_with_input(&mut register, &mut input);
+        assert_eq!(register.r0, b'F' as u16);
+        // And prints correctly
     }
 }

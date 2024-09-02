@@ -45,7 +45,7 @@ impl Register {
             8 => self.pc,
             9 => self.cond,
             _ => {
-                println!("Invalid register");
+                println!("Invalid register at get");
                 0
             }
         }
@@ -63,7 +63,7 @@ impl Register {
             7 => self.r7 = val,
             8 => self.pc = val,
             9 => self.cond = val,
-            _ => println!("Invalid register"),
+            _ => println!("Invalid register at set"),
         }
     }
 }
