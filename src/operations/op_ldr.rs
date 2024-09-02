@@ -14,10 +14,7 @@ pub fn op_ldr(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
     let offset = sign_extend(instr & 0x3F, 6) as i16;
-    println!("LDR R{} R{} #OFFSET{}", r0, r1, offset);
     let addr = (register.get(r1) as i16 + offset) as u16;
-    println!("ADDR: {:x}", addr);
-    println!("MEM en ADDR: {:x}", memory.read(addr));
     register.set(r0, memory.read(addr));
     update_flags(register, r0);
 }
@@ -52,7 +49,6 @@ mod tests {
 
         let instr: u16 = 0b0110_000_001111110; // LDR R0, R1, #-2
         op_ldr(&mut register, instr, &mut memory);
-        println!("R0: {:x}", register.get(0));
 
         assert_eq!(register.get(0), 0x5678); 
     }
