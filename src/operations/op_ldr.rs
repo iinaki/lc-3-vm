@@ -2,14 +2,6 @@ use crate::{memory::Memory, register::Register};
 
 use super::{sign_extend, update_flags};
 
-// LDR {
-//     uint16_t r0 = (instr >> 9) & 0x7;
-//     uint16_t r1 = (instr >> 6) & 0x7;
-//     uint16_t offset = sign_extend(instr & 0x3F, 6);
-//     reg[r0] = mem_read(reg[r1] + offset);
-//     update_flags(r0);
-// }
-
 pub fn op_ldr(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
@@ -26,7 +18,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_op_ldr_positive_offset() {
+    fn op_ldr_positive_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -40,7 +32,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_ldr_negative_offset() {
+    fn op_ldr_negative_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -54,7 +46,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_ldr_zero_offset() {
+    fn op_ldr_zero_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -68,7 +60,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_ldr_update_flags() {
+    fn op_ldr_update_flags() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -83,7 +75,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_ldr_preserves_pc() {
+    fn op_ldr_preserves_pc() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 

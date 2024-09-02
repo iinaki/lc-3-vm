@@ -2,12 +2,6 @@ use crate::{memory::Memory, register::Register};
 
 use super::sign_extend;
 
-// ST {
-//     uint16_t r0 = (instr >> 9) & 0x7;
-//     uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
-//     mem_write(reg[R_PC] + pc_offset, reg[r0]);
-// }
-
 pub fn op_st(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
@@ -19,7 +13,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_op_st_basic() {
+    fn op_st_basic() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -32,7 +26,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_st_negative_offset() {
+    fn op_st_negative_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -46,7 +40,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_st_zero_offset() {
+    fn op_st_zero_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -60,7 +54,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_st_overflow_offset() {
+    fn op_st_overflow_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -74,7 +68,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_st_preserves_registers() {
+    fn op_st_preserves_registers() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 

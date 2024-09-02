@@ -2,28 +2,6 @@ use crate::register::Register;
 
 use super::{sign_extend, update_flags};
 
-// ADD {
-//     /* destination register (DR) */
-//     uint16_t r0 = (instr >> 9) & 0x7;
-//     /* first operand (SR1) */
-//     uint16_t r1 = (instr >> 6) & 0x7;
-//     /* whether we are in immediate mode */
-//     uint16_t imm_flag = (instr >> 5) & 0x1;
-
-//     if (imm_flag)
-//     {
-//         uint16_t imm5 = sign_extend(instr & 0x1F, 5);
-//         reg[r0] = reg[r1] + imm5;
-//     }
-//     else
-//     {
-//         uint16_t r2 = instr & 0x7;
-//         reg[r0] = reg[r1] + reg[r2];
-//     }
-
-//     update_flags(r0);
-// }
-
 pub fn op_add(register: &mut Register, instr: u16) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
@@ -53,7 +31,7 @@ mod tests {
 
     // ADD TESTS
     #[test]
-    fn test_op_add_with_registers() {
+    fn op_add_with_registers() {
         let mut register = Register::new();
         register.set(1, 10);
         register.set(2, 15);
@@ -66,7 +44,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_add_with_immediate_positive() {
+    fn op_add_with_immediate_positive() {
         let mut register = Register::new();
         register.set(1, 10);
 
@@ -77,7 +55,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_add_with_immediate_negative() {
+    fn op_add_with_immediate_negative() {
         let mut register = Register::new();
         register.set(1, 10);
 
@@ -88,7 +66,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_add_with_negative_result() {
+    fn op_add_with_negative_result() {
         let mut register = Register::new();
         register.set(1, 0);
 
@@ -100,7 +78,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_add_with_zero_result() {
+    fn op_add_with_zero_result() {
         let mut register = Register::new();
         register.set(1, 1);
 
@@ -112,7 +90,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_add_with_positive_result() {
+    fn op_add_with_positive_result() {
         let mut register = Register::new();
         register.set(1, 1);
 

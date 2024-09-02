@@ -2,23 +2,6 @@ use crate::register::Register;
 
 use super::{sign_extend, update_flags};
 
-// AND {
-//     uint16_t r0 = (instr >> 9) & 0x7;
-//     uint16_t r1 = (instr >> 6) & 0x7;
-//     uint16_t imm_flag = (instr >> 5) & 0x1;
-
-//     if (imm_flag)
-//     {
-//         uint16_t imm5 = sign_extend(instr & 0x1F, 5);
-//         reg[r0] = reg[r1] & imm5;
-//     }
-//     else
-//     {
-//         uint16_t r2 = instr & 0x7;
-//         reg[r0] = reg[r1] & reg[r2];
-//     }
-//     update_flags(r0);
-// }
 pub fn op_and(register: &mut Register, instr: u16) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
@@ -41,7 +24,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_op_and_with_registers() {
+    fn op_and_with_registers() {
         let mut register = Register::new();
         register.set(1, 0b1100);
         register.set(2, 0b1010);
@@ -53,7 +36,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_and_with_immediate() {
+    fn op_and_with_immediate() {
         let mut register = Register::new();
         register.set(1, 0b1100);
 
@@ -64,7 +47,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_and_with_zero_result() {
+    fn op_and_with_zero_result() {
         let mut register = Register::new();
         register.set(1, 0b1100);
 
@@ -76,7 +59,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_and_with_negative_result() {
+    fn op_and_with_negative_result() {
         let mut register = Register::new();
         register.set(1, 0xFFFF);
 
@@ -88,7 +71,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_and_with_positive_result() {
+    fn op_and_with_positive_result() {
         let mut register = Register::new();
         register.set(1, 0b0111);
         register.set(2, 0b0011);
@@ -101,7 +84,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_and_with_zero_cond_flag() {
+    fn op_and_with_zero_cond_flag() {
         let mut register = Register::new();
         register.set(1, 0b0101);
         register.set(2, 0b1010);

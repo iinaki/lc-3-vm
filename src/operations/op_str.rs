@@ -2,13 +2,6 @@ use crate::{memory::Memory, register::Register};
 
 use super::sign_extend;
 
-// STR {
-//     uint16_t r0 = (instr >> 9) & 0x7;
-//     uint16_t r1 = (instr >> 6) & 0x7;
-//     uint16_t offset = sign_extend(instr & 0x3F, 6);
-//     mem_write(reg[r1] + offset, reg[r0]);
-// }
-
 pub fn op_str(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
@@ -21,7 +14,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_op_str_basic() {
+    fn op_str_basic() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -35,7 +28,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_str_negative_offset() {
+    fn op_str_negative_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -49,7 +42,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_str_zero_offset() {
+    fn op_str_zero_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -63,7 +56,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_str_large_offset() {
+    fn op_str_large_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
@@ -77,7 +70,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_str_overflow_address() {
+    fn op_str_overflow_address() {
         let mut register = Register::new();
         let mut memory = Memory::new();
 

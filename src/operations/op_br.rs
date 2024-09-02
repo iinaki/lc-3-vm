@@ -2,22 +2,6 @@ use crate::register::Register;
 
 use super::sign_extend;
 
-// BR {
-//     uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
-//     uint16_t cond_flag = (instr >> 9) & 0x7;
-//     if (cond_flag & reg[R_COND])
-//     {
-//         reg[R_PC] += pc_offset;
-//     }
-// }
-
-// fn op_br(register: &mut Register, instr: u16) {
-//     let pc_offset = sign_extend(instr & 0x1FF, 9);
-//     let cond_flag = (instr >> 9) & 0x7;
-//     if cond_flag & register.cond as u16 != 0 {
-//         register.pc += pc_offset;
-//     }
-// }
 pub fn op_br(register: &mut Register, instr: u16) {
     let pc_offset = sign_extend(instr & 0x1FF, 9);
     let cond_flag = (instr >> 9) & 0x7;

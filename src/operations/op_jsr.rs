@@ -2,21 +2,6 @@ use crate::register::Register;
 
 use super::sign_extend;
 
-// {
-//     uint16_t long_flag = (instr >> 11) & 1;
-//     reg[R_R7] = reg[R_PC];
-//     if (long_flag)
-//     {
-//         uint16_t long_pc_offset = sign_extend(instr & 0x7FF, 11);
-//         reg[R_PC] += long_pc_offset;  /* JSR */
-//     }
-//     else
-//     {
-//         uint16_t r1 = (instr >> 6) & 0x7;
-//         reg[R_PC] = reg[r1]; /* JSRR */
-//     }
-// }
-
 pub fn op_jsr(register: &mut Register, instr: u16) {
     let long_flag = (instr >> 11) & 1;
     register.r7 = register.pc;
@@ -34,7 +19,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_op_jsr_long_offset() {
+    fn op_jsr_long_offset() {
         let mut register = Register::new();
         register.pc = 0x3000;
 
@@ -46,7 +31,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_jsr_negative_offset() {
+    fn op_jsr_negative_offset() {
         let mut register = Register::new();
         register.pc = 0x3000;
 
@@ -58,7 +43,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_jsrr() {
+    fn op_jsrr() {
         let mut register = Register::new();
         register.pc = 0x3000;
         register.set(2, 0x4000);
@@ -71,7 +56,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_jsr_preserves_other_registers() {
+    fn op_jsr_preserves_other_registers() {
         let mut register = Register::new();
         register.pc = 0x3000;
         register.set(1, 0xABCD);
@@ -86,7 +71,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_jsr_long_offset_and_return() {
+    fn op_jsr_long_offset_and_return() {
         let mut register = Register::new();
         register.pc = 0x3000;
 

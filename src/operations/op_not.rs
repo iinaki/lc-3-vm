@@ -2,13 +2,6 @@ use crate::register::Register;
 
 use super::update_flags;
 
-// NOT{
-//     uint16_t r0 = (instr >> 9) & 0x7;
-//     uint16_t r1 = (instr >> 6) & 0x7;
-//     reg[r0] = ~reg[r1];
-//     update_flags(r0);
-// }
-
 pub fn op_not(register: &mut Register, instr: u16) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
@@ -23,7 +16,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_op_not_basic() {
+    fn op_not_basic() {
         let mut register = Register::new();
         register.set(1, 0x0F0F);
 
@@ -34,7 +27,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_not_zero() {
+    fn op_not_zero() {
         let mut register = Register::new();
         register.set(1, 0x0000);
 
@@ -45,7 +38,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_not_all_ones() {
+    fn op_not_all_ones() {
         let mut register = Register::new();
         register.set(1, 0xFFFF);
 
@@ -57,7 +50,7 @@ mod tests {
     }
 
     #[test]
-    fn test_op_not_update_flags_negative() {
+    fn op_not_update_flags_negative() {
         let mut register = Register::new();
         register.set(1, 0x7FFF);
 
