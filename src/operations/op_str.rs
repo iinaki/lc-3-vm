@@ -25,12 +25,12 @@ mod tests {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
-        register.set(0, 0xABCD); 
+        register.set(0, 0xABCD);
         register.set(1, 0x3000);
 
         let instr: u16 = 0b0111_000_001_000010; // STR R0, R1, #2
         op_str(&mut register, instr, &mut memory);
-        
+
         assert_eq!(memory.read(0x3002), 0xABCD);
     }
 
@@ -39,12 +39,12 @@ mod tests {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
-        register.set(0, 0x1234); 
+        register.set(0, 0x1234);
         register.set(1, 0x3004);
 
         let instr: u16 = 0b0111_000_001_111110; // STR R0, R1, #-2
         op_str(&mut register, instr, &mut memory);
-        
+
         assert_eq!(memory.read(0x3002), 0x1234);
     }
 
@@ -54,11 +54,11 @@ mod tests {
         let mut memory = Memory::new();
 
         register.set(0, 0x5678);
-        register.set(1, 0x4000); 
+        register.set(1, 0x4000);
 
         let instr: u16 = 0b0111_000_001_000000; // STR R0, R1, #0
         op_str(&mut register, instr, &mut memory);
-        
+
         assert_eq!(memory.read(0x4000), 0x5678);
     }
 
@@ -67,12 +67,12 @@ mod tests {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
-        register.set(0, 0x9ABC); 
-        register.set(1, 0x1000); 
+        register.set(0, 0x9ABC);
+        register.set(1, 0x1000);
 
         let instr: u16 = 0b0111_000_001_001111; // STR R0, R1, #15
         op_str(&mut register, instr, &mut memory);
-        
+
         assert_eq!(memory.read(0x100F), 0x9ABC);
     }
 
@@ -81,12 +81,12 @@ mod tests {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
-        register.set(0, 0x4321); 
+        register.set(0, 0x4321);
         register.set(1, 0xFFFF);
 
         let instr: u16 = 0b0111_000_001_000001; // STR R0, R1, #1
         op_str(&mut register, instr, &mut memory);
-        
+
         assert_eq!(memory.read(0x0000), 0x4321);
     }
 }

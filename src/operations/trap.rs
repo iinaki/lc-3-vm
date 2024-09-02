@@ -159,7 +159,7 @@ mod tests {
     use std::io::Cursor;
 
     // TRAP GETC
-    
+
     fn trap_getc_with_input(register: &mut Register, input: &mut dyn std::io::Read) {
         let mut buffer = [0; 1];
         register.r0 = match input.read_exact(&mut buffer) {
@@ -184,18 +184,18 @@ mod tests {
     #[test]
     fn test_trap_getc_invalid_input() {
         let mut register = Register::new();
-        let mut input = Cursor::new(vec![]); 
+        let mut input = Cursor::new(vec![]);
 
         trap_getc_with_input(&mut register, &mut input);
-        assert_eq!(register.r0, 0); 
+        assert_eq!(register.r0, 0);
     }
 
     // TRAP OUT
     #[test]
     fn test_trap_out() {
         let mut register = Register::new();
-        register.r0 = 'A' as u16; 
-        
+        register.r0 = 'A' as u16;
+
         trap_out(&mut register);
         // prints 'A' in stdout
     }
@@ -205,7 +205,7 @@ mod tests {
     fn test_trap_puts() {
         let mut register = Register::new();
         let mut memory = Memory::new();
-        
+
         let message = "Hello";
         for (i, &byte) in message.as_bytes().iter().enumerate() {
             memory.write(i as u16, byte as u16);
@@ -213,11 +213,11 @@ mod tests {
         memory.write(message.len() as u16, 0);
 
         register.r0 = 0;
-        
+
         trap_puts(&mut register, &mut memory);
         // prints 'Hello' in stdout
     }
-    
+
     fn trap_in_with_input(register: &mut Register, input: &mut dyn std::io::Read) {
         print!("Enter a character: ");
         let mut buffer = [0; 1];
@@ -231,7 +231,7 @@ mod tests {
         print!("{}", c);
         flush_stdout();
         register.set(0, c as u16);
-    
+
         update_flags(register, 0);
     }
 
@@ -256,7 +256,7 @@ mod tests {
         memory.write(0x3001, 0x0000); // null terminator
 
         register.r0 = 0x3000;
-        
+
         trap_putsp(&mut register, &mut memory);
         // output: "AB"
     }

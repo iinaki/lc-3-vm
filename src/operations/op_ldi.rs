@@ -40,60 +40,60 @@ mod tests {
     fn test_op_ldi_positive_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
-        
+
         register.pc = 0x3000;
-        memory.write(0x3002, 0x4000); 
+        memory.write(0x3002, 0x4000);
         memory.write(0x4000, 0x1234);
 
         let instr: u16 = 0b1010_000_000000010; // LDI R0, PC+2
         op_ldi(&mut register, instr, &mut memory);
 
-        assert_eq!(register.get(0), 0x1234); 
+        assert_eq!(register.get(0), 0x1234);
     }
 
     #[test]
     fn test_op_ldi_negative_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
-        
+
         register.pc = 0x3000;
-        memory.write(0x2FFE, 0x4000); 
-        memory.write(0x4000, 0xABCD); 
+        memory.write(0x2FFE, 0x4000);
+        memory.write(0x4000, 0xABCD);
 
         let instr: u16 = 0b1010_000_111111110; // LDI R0, PC-2
         op_ldi(&mut register, instr, &mut memory);
 
-        assert_eq!(register.get(0), 0xABCD); 
+        assert_eq!(register.get(0), 0xABCD);
     }
 
     #[test]
     fn test_op_ldi_zero_offset() {
         let mut register = Register::new();
         let mut memory = Memory::new();
-        
+
         register.pc = 0x3000;
         memory.write(0x3000, 0x5000);
-        memory.write(0x5000, 0x5678); 
+        memory.write(0x5000, 0x5678);
 
         let instr: u16 = 0b1010_000_000000000; // LDI R0, PC+0
         op_ldi(&mut register, instr, &mut memory);
 
-        assert_eq!(register.get(0), 0x5678); 
+        assert_eq!(register.get(0), 0x5678);
     }
 
     #[test]
     fn test_op_ldi_update_flags() {
         let mut register = Register::new();
         let mut memory = Memory::new();
-        
+
         register.pc = 0x3000;
-        memory.write(0x3000, 0x0000); 
-        memory.write(0x0000, 0x0000); 
+        memory.write(0x3000, 0x0000);
+        memory.write(0x0000, 0x0000);
 
         let instr: u16 = 0b1010_000_000000000; // LDI R0, PC+0
         op_ldi(&mut register, instr, &mut memory);
 
-        assert_eq!(register.get(0), 0x0000); 
+        assert_eq!(register.get(0), 0x0000);
         assert_eq!(register.cond, FL_ZRO);
     }
 
@@ -101,12 +101,12 @@ mod tests {
     fn test_op_ldi_preserves_pc() {
         let mut register = Register::new();
         let mut memory = Memory::new();
-        
+
         register.pc = 0x3000;
 
         let instr: u16 = 0b1010_000_000000010; // LDI R0, PC+2
         op_ldi(&mut register, instr, &mut memory);
 
-        assert_eq!(register.pc, 0x3000); 
+        assert_eq!(register.pc, 0x3000);
     }
 }

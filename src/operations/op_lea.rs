@@ -39,7 +39,7 @@ mod tests {
         let instr: u16 = 0b1110_000_111111011; // LEA R0, PC - 5
         op_lea(&mut register, instr);
 
-        assert_eq!(register.get(0), 0x2FFB); 
+        assert_eq!(register.get(0), 0x2FFB);
     }
 
     #[test]
@@ -69,9 +69,9 @@ mod tests {
         let mut register = Register::new();
 
         let instr: u16 = 0b1110_000_000000101; // LEA R0, PC + 5
-        let initial_pc = register.pc; 
+        let initial_pc = register.pc;
         op_lea(&mut register, instr);
 
-        assert_eq!(register.pc, initial_pc); 
+        assert_eq!(register.pc, initial_pc);
     }
 }

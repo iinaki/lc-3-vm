@@ -30,13 +30,13 @@ mod tests {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
-        register.set(1, 0x3000); 
-        memory.write(0x3002, 0xABCD); 
+        register.set(1, 0x3000);
+        memory.write(0x3002, 0xABCD);
 
         let instr: u16 = 0b0110_000_001000010; // LDR R0, R1, #2
         op_ldr(&mut register, instr, &mut memory);
 
-        assert_eq!(register.get(0), 0xABCD); 
+        assert_eq!(register.get(0), 0xABCD);
     }
 
     #[test]
@@ -44,13 +44,13 @@ mod tests {
         let mut register = Register::new();
         let mut memory = Memory::new();
 
-        register.set(1, 0x3002); 
-        memory.write(0x3000, 0x5678); 
+        register.set(1, 0x3002);
+        memory.write(0x3000, 0x5678);
 
         let instr: u16 = 0b0110_000_001111110; // LDR R0, R1, #-2
         op_ldr(&mut register, instr, &mut memory);
 
-        assert_eq!(register.get(0), 0x5678); 
+        assert_eq!(register.get(0), 0x5678);
     }
 
     #[test]
@@ -59,12 +59,12 @@ mod tests {
         let mut memory = Memory::new();
 
         register.set(1, 0x3000);
-        memory.write(0x3000, 0x9ABC); 
+        memory.write(0x3000, 0x9ABC);
 
         let instr: u16 = 0b0110_000_001000000; // LDR R0, R1, #0
         op_ldr(&mut register, instr, &mut memory);
 
-        assert_eq!(register.get(0), 0x9ABC); 
+        assert_eq!(register.get(0), 0x9ABC);
     }
 
     #[test]
@@ -73,13 +73,13 @@ mod tests {
         let mut memory = Memory::new();
 
         register.set(1, 0x3000);
-        memory.write(0x3000, 0x0000); 
+        memory.write(0x3000, 0x0000);
 
         let instr: u16 = 0b0110_000_001000000; // LDR R0, R1, #0
         op_ldr(&mut register, instr, &mut memory);
 
         assert_eq!(register.get(0), 0x0000);
-        assert_eq!(register.cond, FL_ZRO); 
+        assert_eq!(register.cond, FL_ZRO);
     }
 
     #[test]
@@ -93,6 +93,6 @@ mod tests {
         let initial_pc = register.pc;
         op_ldr(&mut register, instr, &mut memory);
 
-        assert_eq!(register.pc, initial_pc); 
+        assert_eq!(register.pc, initial_pc);
     }
 }

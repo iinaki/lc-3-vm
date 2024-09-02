@@ -21,7 +21,7 @@ use super::sign_extend;
 pub fn op_br(register: &mut Register, instr: u16) {
     let pc_offset = sign_extend(instr & 0x1FF, 9);
     let cond_flag = (instr >> 9) & 0x7;
-    if cond_flag & register.cond as u16 != 0 {
+    if cond_flag & register.cond != 0 {
         register.pc = ((register.pc as i16) + pc_offset) as u16;
     }
 }

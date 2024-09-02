@@ -15,6 +15,12 @@ pub struct Register {
     pub count: u16,
 }
 
+impl Default for Register {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Register {
     pub fn new() -> Register {
         Register {

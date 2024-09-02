@@ -25,7 +25,7 @@ mod tests {
     #[test]
     fn test_op_not_basic() {
         let mut register = Register::new();
-        register.set(1, 0x0F0F); 
+        register.set(1, 0x0F0F);
 
         let instr: u16 = 0b1001_000_001_111111; // NOT R0, R1
         op_not(&mut register, instr);
@@ -41,13 +41,13 @@ mod tests {
         let instr: u16 = 0b1001_000_001_111111; // NOT R0, R1
         op_not(&mut register, instr);
 
-        assert_eq!(register.get(0), 0xFFFF); 
+        assert_eq!(register.get(0), 0xFFFF);
     }
 
     #[test]
     fn test_op_not_all_ones() {
         let mut register = Register::new();
-        register.set(1, 0xFFFF); 
+        register.set(1, 0xFFFF);
 
         let instr: u16 = 0b1001_000_001_111111; // NOT R0, R1
         op_not(&mut register, instr);
@@ -59,12 +59,12 @@ mod tests {
     #[test]
     fn test_op_not_update_flags_negative() {
         let mut register = Register::new();
-        register.set(1, 0x7FFF); 
+        register.set(1, 0x7FFF);
 
         let instr: u16 = 0b1001_000_001_111111; // NOT R0, R1
         op_not(&mut register, instr);
 
-        assert_eq!(register.get(0), 0x8000); 
-        assert_eq!(register.cond, FL_NEG); 
+        assert_eq!(register.get(0), 0x8000);
+        assert_eq!(register.cond, FL_NEG);
     }
 }
