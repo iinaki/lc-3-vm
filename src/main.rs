@@ -29,6 +29,7 @@ fn main() {
     }
 
     let path = &args[1];
+    println!("Loading image file: {}", path);
     match read_image_file(path, &mut memory) {
         Ok(_) => (),
         Err(e) => {
@@ -44,11 +45,12 @@ fn main() {
             println!("Reached end of memory");
             break;
         }
-        register.pc += 1;
         let instr = memory.read(register.pc);
         let op = instr >> 12;
 
         handle_operations(&mut register, instr, op, &mut memory, &mut running);
+
+        register.pc += 1;
     }
     //@{Shutdown}
     process::exit(1);

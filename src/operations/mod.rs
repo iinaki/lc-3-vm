@@ -77,7 +77,6 @@ pub fn handle_operations(
     memory: &mut Memory,
     running: &mut bool,
 ) {
-    println!("PERFORMING OP: {}", op);
     match op {
         OP_ADD => {
             op_add(register, instr);
