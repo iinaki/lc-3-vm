@@ -97,15 +97,15 @@ fn trap_in(register: &mut Register) {
 // }
 
 fn trap_putsp(register: &mut Register, memory: &mut Memory) {
-    let mut c = memory.read(register.r0);
-    while memory.read(c) != 0 {
-        let char1 = memory.read(c) & 0xFF;
+    let mut i = register.r0;
+    while memory.read(i) != 0 {
+        let char1 = memory.read(i) & 0xFF;
         print!("{}", char1 as u8 as char);
-        let char2 = memory.read(c) >> 8;
+        let char2 = memory.read(i) >> 8;
         if char2 != 0 {
             print!("{}", char2 as u8 as char);
         }
-        c += 1;
+        i += 1;
     }
     flush_stdout();
 }
@@ -244,5 +244,20 @@ mod tests {
         trap_in_with_input(&mut register, &mut input);
         assert_eq!(register.r0, b'F' as u16);
         // And prints correctly
+    }
+
+    // TRAP PUTSP
+    #[test]
+    fn test_trap_putsp() {
+        let mut register = Register::new();
+        let mut memory = Memory::new();
+
+        memory.write(0x3000, 0x4241); // "AB" -> 0x4241
+        memory.write(0x3001, 0x0000); // null terminator
+
+        register.r0 = 0x3000;
+        
+        trap_putsp(&mut register, &mut memory);
+        // output: "AB"
     }
 }
