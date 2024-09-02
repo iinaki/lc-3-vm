@@ -8,26 +8,6 @@ use crate::{
 
 use super::{flush_stdout, update_flags};
 
-// TRAP PUTS {
-//     /* one char per word */
-//     uint16_t* c = memory + reg[R_R0];
-//     while (*c)
-//     {
-//         putc((char)*c, stdout);
-//         ++c;
-//     }
-//     fflush(stdout);
-// }
-
-fn trap_puts(register: &mut Register, memory: &mut Memory) {
-    let mut c = memory.read(register.r0);
-    while memory.read(c) != 0 {
-        print!("{}", memory.read(c) as u8 as char);
-        c += 1;
-    }
-    flush_stdout();
-}
-
 // /* read a single ASCII char */
 // reg[R_R0] = (uint16_t)getchar();
 // update_flags(R_R0);
@@ -50,6 +30,26 @@ pub fn trap_getc(register: &mut Register) {
 
 fn trap_out(register: &mut Register) {
     print!("{}", register.r0 as u8 as char);
+    flush_stdout();
+}
+
+// TRAP PUTS {
+//     /* one char per word */
+//     uint16_t* c = memory + reg[R_R0];
+//     while (*c)
+//     {
+//         putc((char)*c, stdout);
+//         ++c;
+//     }
+//     fflush(stdout);
+// }
+
+fn trap_puts(register: &mut Register, memory: &mut Memory) {
+    let mut i = register.r0;
+    while memory.read(i) != 0 {
+        print!("{}", memory.read(i) as u8 as char);
+        i += 1;
+    }
     flush_stdout();
 }
 
@@ -156,7 +156,7 @@ pub fn handle_trap(register: &mut Register, instr: u16, memory: &mut Memory, run
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::{self, Cursor, Write};
+    use std::io::Cursor;
 
     // TRAP GETC
     
@@ -197,6 +197,23 @@ mod tests {
         register.r0 = 'A' as u16; 
         
         trap_out(&mut register);
-        // printea 'A' en stdout bien
+        // prints 'A' in stdout
+    }
+
+    #[test]
+    fn test_trap_puts() {
+        let mut register = Register::new();
+        let mut memory = Memory::new();
+        
+        let message = "Hello";
+        for (i, &byte) in message.as_bytes().iter().enumerate() {
+            memory.write(i as u16, byte as u16);
+        }
+        memory.write(message.len() as u16, 0);
+
+        register.r0 = 0;
+        
+        trap_puts(&mut register, &mut memory);
+        // prints 'Hello' in stdout
     }
 }
