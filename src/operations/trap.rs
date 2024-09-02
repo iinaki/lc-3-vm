@@ -152,3 +152,39 @@ pub fn handle_trap(register: &mut Register, instr: u16, memory: &mut Memory, run
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+
+    fn trap_getc_with_input(register: &mut Register, input: &mut dyn std::io::Read) {
+        let mut buffer = [0; 1];
+        register.r0 = match input.read_exact(&mut buffer) {
+            Ok(_) => buffer[0] as u16,
+            Err(e) => {
+                println!("Error reading from input: {}", e);
+                0
+            }
+        };
+        update_flags(register, register.r0);
+    }
+
+    #[test]
+    fn test_trap_getc_valid_input() {
+        let mut register = Register::new();
+        let mut input = Cursor::new(vec![b'A']);
+
+        trap_getc_with_input(&mut register, &mut input);
+        assert_eq!(register.r0, b'A' as u16);
+    }
+
+    #[test]
+    fn test_trap_getc_invalid_input() {
+        let mut register = Register::new();
+        let mut input = Cursor::new(vec![]); 
+
+        trap_getc_with_input(&mut register, &mut input);
+        assert_eq!(register.r0, 0); 
+    }
+}
