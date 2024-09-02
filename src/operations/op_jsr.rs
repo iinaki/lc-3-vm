@@ -21,7 +21,7 @@ pub fn op_jsr(register: &mut Register, instr: u16) {
     let long_flag = (instr >> 11) & 1;
     register.r7 = register.pc;
     if long_flag == 1 {
-        let long_pc_offset = sign_extend(instr & 0x7FF, 11) as i16;
+        let long_pc_offset = sign_extend(instr & 0x7FF, 11);
         register.pc = (register.pc as i16 + long_pc_offset) as u16; /* JSR */
     } else {
         let r1 = (instr >> 6) & 0x7;

@@ -26,7 +26,7 @@ pub fn op_and(register: &mut Register, instr: u16) {
 
     if imm_flag == 1 {
         let imm5 = sign_extend(instr & 0x1F, 5);
-        register.set(r0, register.get(r1) & imm5);
+        register.set(r0, (register.get(r1) as i16 & imm5) as u16);
     } else {
         let r2 = instr & 0x7;
         register.set(r0, register.get(r1) & register.get(r2));

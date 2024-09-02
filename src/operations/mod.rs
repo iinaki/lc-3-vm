@@ -50,12 +50,14 @@ use crate::operations::trap::{handle_trap, trap_halt};
 //     }
 //     return x;
 // }
-fn sign_extend(x: u16, bit_count: u16) -> u16 {
+fn sign_extend(x: u16, bit_count: u16) -> i16 {
+    let y;
     if (x >> (bit_count - 1)) & 1 != 0 {
-        x | (0xFFFF << bit_count)
+        y = x | (0xFFFF << bit_count);
     } else {
-        x
+        y = x;
     }
+    y as i16
 }
 
 /// Flushes the stdout buffer

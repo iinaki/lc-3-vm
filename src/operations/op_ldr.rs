@@ -13,7 +13,7 @@ use super::{sign_extend, update_flags};
 pub fn op_ldr(register: &mut Register, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
-    let offset = sign_extend(instr & 0x3F, 6) as i16;
+    let offset = sign_extend(instr & 0x3F, 6);
     let addr = (register.get(r1) as i16 + offset) as u16;
     register.set(r0, memory.read(addr));
     update_flags(register, r0);

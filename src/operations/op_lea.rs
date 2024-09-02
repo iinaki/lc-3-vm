@@ -11,7 +11,7 @@ use super::{sign_extend, update_flags};
 
 pub fn op_lea(register: &mut Register, instr: u16) {
     let r0 = (instr >> 9) & 0x7;
-    let pc_offset = sign_extend(instr & 0x1FF, 9) as i16;
+    let pc_offset = sign_extend(instr & 0x1FF, 9);
     register.set(r0, (register.pc as i16 + pc_offset) as u16);
     update_flags(register, r0);
 }
