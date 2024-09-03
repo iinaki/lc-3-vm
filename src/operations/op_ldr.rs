@@ -4,6 +4,13 @@ use crate::{
     utils::{sign_extend, update_flags},
 };
 
+/// Executes the LDR operation.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_ldr(registers: &mut Registers, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;

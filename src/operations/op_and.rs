@@ -3,6 +3,13 @@ use crate::{
     utils::{sign_extend, update_flags},
 };
 
+/// Executes the AND operation.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_and(registers: &mut Registers, instr: u16) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;

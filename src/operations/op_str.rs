@@ -1,5 +1,12 @@
 use crate::{memory::Memory, registers::Registers, utils::sign_extend};
 
+/// Executes the STR operation.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_str(registers: &mut Registers, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;

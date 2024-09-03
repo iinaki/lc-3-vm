@@ -7,6 +7,15 @@ use crate::{
     utils::{flush_stdout, update_flags},
 };
 
+/// Handles the `GETC` TRAP instruction.
+///
+/// This function reads a single character from the standard input (stdin)
+/// and stores it in the `R0` register. The condition flags are updated
+/// based on the value of `R0`.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
 pub fn trap_getc(registers: &mut Registers) {
     let mut buffer = [0; 1];
     registers.r0 = match std::io::stdin().read(&mut buffer) {
@@ -20,12 +29,30 @@ pub fn trap_getc(registers: &mut Registers) {
     update_flags(registers, 0);
 }
 
+/// Handles the `OUT` TRAP instruction.
+///
+/// This function outputs a single character stored in the `R0` register to the console.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+///
 fn trap_out(registers: &mut Registers) {
     let ch = char::from((registers.r0 & 0xFF) as u8);
     print!("{}", ch);
     flush_stdout();
 }
 
+/// Handles the `PUTS` TRAP instruction.
+///
+/// This function outputs a null-terminated string stored in memory,
+/// starting from the address in the `R0` register, to the console.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `memory`: A mutable reference to the `Memory` struct.
+///
 fn trap_puts(registers: &mut Registers, memory: &mut Memory) {
     let mut i = registers.r0;
     let mut c = memory.read(i);
@@ -37,6 +64,15 @@ fn trap_puts(registers: &mut Registers, memory: &mut Memory) {
     flush_stdout();
 }
 
+/// Handles the `IN` TRAP instruction.
+///
+/// This function prompts the user to enter a character and stores it in the `R0` register.
+/// The entered character is also echoed to the console.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+///
 fn trap_in(registers: &mut Registers) {
     print!("Enter a character: ");
     flush_stdout();
@@ -57,6 +93,16 @@ fn trap_in(registers: &mut Registers) {
     update_flags(registers, 0);
 }
 
+/// Handles the `PUTSP` TRAP instruction.
+///
+/// This function outputs a string stored in memory, starting from the address in the `R0` register,
+/// to the console. Each memory location contains two characters packed into one 16-bit word.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `memory`: A mutable reference to the `Memory` struct.
+///
 fn trap_putsp(registers: &mut Registers, memory: &mut Memory) {
     let mut i = registers.r0;
     let mut char = memory.read(i);
@@ -78,12 +124,31 @@ fn trap_putsp(registers: &mut Registers, memory: &mut Memory) {
     flush_stdout();
 }
 
+/// Handles the `HALT` TRAP instruction.
+///
+/// This function halts the program by setting the `running` flag to `false`.
+///
+/// # Parameters
+///
+/// - `running`: A mutable reference to a boolean flag that indicates if the
+///   program is running.
+///
 pub fn trap_halt(running: &mut bool) {
     println!("HALT");
     flush_stdout();
     *running = false;
 }
 
+/// Handles the correct trap routine based on the instruction.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: The 16-bit instruction containing the TRAP opcode.
+/// - `memory`: A mutable reference to the `Memory` struct.
+/// - `running`: A mutable reference to a boolean flag that indicates if the
+///   program is running.
+///
 pub fn handle_trap(registers: &mut Registers, instr: u16, memory: &mut Memory, running: &mut bool) {
     registers.r7 = registers.pc;
 

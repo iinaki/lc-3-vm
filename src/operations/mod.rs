@@ -40,6 +40,16 @@ use crate::operations::{
     trap::{handle_trap, trap_halt},
 };
 
+/// Handles the execution of operations based on the provided opcode.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: The instruction to be executed.
+/// - `op`: The operation code extracted from the instruction.
+/// - `memory`: A mutable reference to the `Memory` struct.
+/// - `running`: Boolean flag that indicates if the program is running.
+///
 pub fn handle_operations(
     registers: &mut Registers,
     instr: u16,

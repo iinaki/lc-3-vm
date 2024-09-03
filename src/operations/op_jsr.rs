@@ -1,5 +1,12 @@
 use crate::{registers::Registers, utils::sign_extend};
 
+/// Executes the JSR operation.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_jsr(registers: &mut Registers, instr: u16) {
     let long_flag = (instr >> 11) & 1;
     registers.r7 = registers.pc;

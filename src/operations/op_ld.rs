@@ -4,6 +4,13 @@ use crate::{
     utils::{sign_extend, update_flags},
 };
 
+/// Executes the LD operation.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_ld(registers: &mut Registers, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
