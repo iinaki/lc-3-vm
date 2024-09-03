@@ -21,7 +21,7 @@ use crate::{
         OP_LEA, OP_NOT, OP_ST, OP_STI, OP_STR, OP_TRAP,
     },
     memory::Memory,
-    register::Register,
+    registers::Registers,
 };
 
 use crate::operations::{
@@ -60,18 +60,18 @@ fn flush_stdout() {
     };
 }
 
-fn update_flags(register: &mut Register, r: u16) {
-    if register.get(r) == 0 {
-        register.cond = FL_ZRO;
-    } else if (register.get(r) >> 15) & 1 == 1 {
-        register.cond = FL_NEG;
+fn update_flags(registers: &mut Registers, r: u16) {
+    if registers.get(r) == 0 {
+        registers.cond = FL_ZRO;
+    } else if (registers.get(r) >> 15) & 1 == 1 {
+        registers.cond = FL_NEG;
     } else {
-        register.cond = FL_POS;
+        registers.cond = FL_POS;
     }
 }
 
 pub fn handle_operations(
-    register: &mut Register,
+    registers: &mut Registers,
     instr: u16,
     op: u16,
     memory: &mut Memory,
@@ -80,42 +80,42 @@ pub fn handle_operations(
     println!("PERFORMING OP: {}", op);
     match op {
         OP_ADD => {
-            op_add(register, instr);
+            op_add(registers, instr);
         }
         OP_AND => {
-            op_and(register, instr);
+            op_and(registers, instr);
         }
-        OP_NOT => op_not(register, instr),
+        OP_NOT => op_not(registers, instr),
         OP_BR => {
-            op_br(register, instr);
+            op_br(registers, instr);
         }
         OP_JMP => {
-            op_jmp(register, instr);
+            op_jmp(registers, instr);
         }
         OP_JSR => {
-            op_jsr(register, instr);
+            op_jsr(registers, instr);
         }
         OP_LD => {
-            op_ld(register, instr, memory);
+            op_ld(registers, instr, memory);
         }
         OP_LDI => {
-            op_ldi(register, instr, memory);
+            op_ldi(registers, instr, memory);
         }
-        OP_LDR => op_ldr(register, instr, memory),
+        OP_LDR => op_ldr(registers, instr, memory),
         OP_LEA => {
-            op_lea(register, instr);
+            op_lea(registers, instr);
         }
         OP_ST => {
-            op_st(register, instr, memory);
+            op_st(registers, instr, memory);
         }
         OP_STI => {
-            op_sti(register, instr, memory);
+            op_sti(registers, instr, memory);
         }
         OP_STR => {
-            op_str(register, instr, memory);
+            op_str(registers, instr, memory);
         }
         OP_TRAP => {
-            handle_trap(register, instr, memory, running);
+            handle_trap(registers, instr, memory, running);
         }
         _ => {
             println!("Bad opcode: {}", op);
