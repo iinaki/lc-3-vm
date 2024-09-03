@@ -34,11 +34,11 @@ impl Memory {
                     0
                 }
             };
-            if char != 0 {
+            if char == 0 {
+                self.memory[MR_KBSR as usize] = 0;
+            } else {
                 self.memory[MR_KBSR as usize] = 1 << 15;
                 self.memory[MR_KBDR as usize] = char;
-            } else {
-                self.memory[MR_KBSR as usize] = 0;
             }
         }
         self.memory[address as usize]
