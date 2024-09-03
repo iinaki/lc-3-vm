@@ -1,6 +1,8 @@
-FILE = examples/2048.obj
+all: test clippy fmt example-2048
 
-all: test clippy fmt run
+build:
+	cargo build --release
+	cargo install --path .
 
 test:
 	cargo test
@@ -10,9 +12,6 @@ clippy:
 
 fmt:
 	cargo fmt
-
-run:
-	cargo run $(FILE)
 
 example-2048:
 	cargo run examples/2048.obj

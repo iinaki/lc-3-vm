@@ -4,12 +4,13 @@ This project is an implementation of a LC-3 virtual machine, following [this tut
 
 ### How to run
 - Clone the repository with `git clone`, and enter de directory containing the VM code.
-- The VM needs at least one image file of assebly code to run a program. To run use `make run FILE=<path-to-image-file>`, with image files being a `.obj` file. 
-- By default (`make run`) it will run the `2048.obj` file.
+- Run `make build` to compile the code.
+- The VM needs at least one image file of assebly code to run a program. To run use `lc-3-vm <path-to-image-file-1> .. <path-to-image-file-n>`, with image files being a `.obj` file. 
 
 For example:
 ```bash
-make run FILE=examples/rogue.obj
+make build
+lc-3-vm examples/rogue.obj
 ```
 
 - You can also run the examples by using `make example-2048` and `make example-rogue`.
