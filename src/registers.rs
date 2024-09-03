@@ -1,7 +1,7 @@
 use crate::constants::{FL_ZRO, PC_START};
 
 #[derive(Debug)]
-pub struct Register {
+pub struct Registers {
     pub r0: u16,
     pub r1: u16,
     pub r2: u16,
@@ -15,15 +15,15 @@ pub struct Register {
     pub count: u16,
 }
 
-impl Default for Register {
+impl Default for Registers {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Register {
-    pub fn new() -> Register {
-        Register {
+impl Registers {
+    pub fn new() -> Self {
+        Registers {
             r0: 0,
             r1: 0,
             r2: 0,
@@ -51,7 +51,7 @@ impl Register {
             8 => self.pc,
             9 => self.cond,
             _ => {
-                println!("Invalid register at get");
+                println!("Invalid registers at get");
                 0
             }
         }
@@ -69,7 +69,7 @@ impl Register {
             7 => self.r7 = val,
             8 => self.pc = val,
             9 => self.cond = val,
-            _ => println!("Invalid register at set"),
+            _ => println!("Invalid registers at set"),
         }
     }
 }

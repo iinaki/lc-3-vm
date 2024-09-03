@@ -6,13 +6,13 @@ use lc_3_vm::{
     input_buffering::{disable_input_buffering, handle_interrupt},
     memory::Memory,
     operations::handle_operations,
-    register::Register,
+    registers::Registers,
     utils::read_image_file,
 };
 
 fn main() {
     let mut memory = Memory::new();
-    let mut register = Register::new();
+    let mut registers = Registers::new();
 
     let mut termios = Termios::from_fd(STDIN_FILENO).unwrap();
 
@@ -41,16 +41,15 @@ fn main() {
     let mut running = true;
     while running {
         /* FETCH */
-        if register.pc == 65535 {
+        if registers.pc == 65535 {
             println!("Reached end of memory");
             break;
         }
-
-        register.pc += 1;
-        let instr = memory.read(register.pc);
+        registers.pc += 1;
+        let instr = memory.read(registers.pc);
         let op = instr >> 12;
 
-        handle_operations(&mut register, instr, op, &mut memory, &mut running);
+        handle_operations(&mut registers, instr, op, &mut memory, &mut running);
     }
     //@{Shutdown}
     process::exit(1);

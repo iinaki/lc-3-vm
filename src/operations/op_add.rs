@@ -1,21 +1,21 @@
-use crate::register::Register;
+use crate::registers::Registers;
 
 use super::{sign_extend, update_flags};
 
-pub fn op_add(register: &mut Register, instr: u16) {
+pub fn op_add(registers: &mut Registers, instr: u16) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
     let imm_flag = (instr >> 5) & 0x1;
 
     if imm_flag == 1 {
         let imm5 = sign_extend(instr & 0x1F, 5);
-        register.set(r0, register.get(r1).wrapping_add(imm5 as u16));
+        registers.set(r0, registers.get(r1).wrapping_add(imm5 as u16));
     } else {
         let r2 = instr & 0x7;
-        register.set(r0, register.get(r1).wrapping_add(register.get(r2)));
+        registers.set(r0, registers.get(r1).wrapping_add(registers.get(r2)));
     }
 
-    update_flags(register, r0);
+    update_flags(registers, r0);
 }
 
 #[cfg(test)]
@@ -23,78 +23,98 @@ mod tests {
     use super::*;
     use crate::{
         constants::{FL_NEG, FL_POS, FL_ZRO},
-        register::Register,
+        registers::Registers,
     };
 
     // ADD TESTS
     #[test]
-    fn op_add_with_registers() {
-        let mut register = Register::new();
-        register.set(1, 10);
-        register.set(2, 15);
+    fn op_add_with_registers
+    () {
+        let mut registers = Registers::new();
+        registers.set(1, 10);
+        registers.set(2, 15);
 
         let instr: u16 = 0b0001_000_001_000_010;
-        op_add(&mut register, instr);
-        println!("REGISTERS: {:?}", register);
+        op_add(&mut registers, instr);
+        println!("registers
+        : {:?}", registers);
 
-        assert_eq!(register.get(0), 25);
+        assert_eq!(registers.get(0), 25);
     }
 
     #[test]
     fn op_add_with_immediate_positive() {
-        let mut register = Register::new();
-        register.set(1, 10);
+        let mut registers
+         = Registers::new();
+        registers
+        .set(1, 10);
 
         let instr: u16 = 0b0001_000_001_1_00001;
-        op_add(&mut register, instr);
+        op_add(&mut registers
+            , instr);
 
-        assert_eq!(register.get(0), 11);
+        assert_eq!(registers
+            .get(0), 11);
     }
 
     #[test]
     fn op_add_with_immediate_negative() {
-        let mut register = Register::new();
-        register.set(1, 10);
+        let mut registers
+         = Registers::new();
+        registers
+        .set(1, 10);
 
         let instr: u16 = 0b0001_000_001_1_11111;
-        op_add(&mut register, instr);
+        op_add(&mut registers
+            , instr);
 
-        assert_eq!(register.get(0), 9);
+        assert_eq!(registers
+            .get(0), 9);
     }
 
     #[test]
     fn op_add_with_negative_result() {
-        let mut register = Register::new();
-        register.set(1, 0);
+        let mut registers
+         = Registers::new();
+        registers
+        .set(1, 0);
 
         let instr: u16 = 0b0001_000_001_1_11111;
-        op_add(&mut register, instr);
+        op_add(&mut registers
+            , instr);
 
-        assert_eq!(register.get(0), 0xFFFF);
-        assert_eq!(register.cond, FL_NEG);
+        assert_eq!(registers
+            .get(0), 0xFFFF);
+        assert_eq!(registers
+            .cond, FL_NEG);
     }
 
     #[test]
     fn op_add_with_zero_result() {
-        let mut register = Register::new();
-        register.set(1, 1);
+        let mut registers
+         = Registers::new();
+        registers
+        .set(1, 1);
 
         let instr: u16 = 0b0001_000_001_1_11111;
-        op_add(&mut register, instr);
+        op_add(&mut registers
+            , instr);
 
-        assert_eq!(register.get(0), 0);
-        assert_eq!(register.cond, FL_ZRO);
+        assert_eq!(registers
+            .get(0), 0);
+        assert_eq!(registers
+            .cond, FL_ZRO);
     }
 
     #[test]
     fn op_add_with_positive_result() {
-        let mut register = Register::new();
-        register.set(1, 1);
+        let mut registers = Registers::new();
+        registers.set(1, 1);
 
         let instr: u16 = 0b0001_000_001_1_00001;
-        op_add(&mut register, instr);
+        op_add(&mut registers, instr);
 
-        assert_eq!(register.get(0), 2);
-        assert_eq!(register.cond, FL_POS);
+        assert_eq!(registers.get(0), 2);
+        assert_eq!(registers.cond, FL_POS);
     }
 }
