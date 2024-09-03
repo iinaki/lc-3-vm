@@ -3,6 +3,14 @@ use crate::{
     utils::flush_stdout,
 };
 
+/// Represents the registers of the LC-3 virtual machine.
+///
+/// # Fields
+///
+/// * `r0`, `r1`, `r2`, `r3`, `r4`, `r5`, `r6`, `r7` - General-purpose registers.
+/// * `pc` - The program counter, which holds the address of the next instruction to execute.
+/// * `cond` - The condition register, which holds flags indicating the result of the last operation.
+/// 
 #[derive(Debug)]
 pub struct Registers {
     pub r0: u16,
@@ -15,7 +23,6 @@ pub struct Registers {
     pub r7: u16,
     pub pc: u16,
     pub cond: u16,
-    pub count: u16,
 }
 
 impl Default for Registers {
@@ -25,6 +32,12 @@ impl Default for Registers {
 }
 
 impl Registers {
+    /// Creates a new `Registers` instance with initial values. Sets all general-purpose registers to `0`, the program counter to `PC_START`, the condition register to `FL_ZRO`, and the `count` to `0`.
+    ///
+    /// # Returns
+    ///
+    /// A `Registers` instance initialized to default values.
+    /// 
     pub fn new() -> Self {
         Registers {
             r0: 0,
@@ -37,10 +50,20 @@ impl Registers {
             r7: 0,
             pc: PC_START,
             cond: FL_ZRO,
-            count: 0,
         }
     }
 
+    /// Gets the value of the specified register.
+    ///
+    /// # Arguments
+    ///
+    /// * `r` - A `u16` representing the register identifier (0-9).
+    ///
+    /// # Returns
+    ///
+    /// The value of the specified register. If the identifier is invalid, it prints an
+    /// error message and returns `0`.
+    /// 
     pub fn get(&self, r: u16) -> u16 {
         match r {
             0 => self.r0,
@@ -61,6 +84,13 @@ impl Registers {
         }
     }
 
+    /// Sets the value of the specified register.
+    ///
+    /// # Arguments
+    ///
+    /// * `r` - A `u16` representing the register identifier (0-9).
+    /// * `val` - The value to be stored in the register.
+    /// 
     pub fn set(&mut self, r: u16, val: u16) {
         match r {
             0 => self.r0 = val,

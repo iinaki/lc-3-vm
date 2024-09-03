@@ -68,6 +68,15 @@ impl Vm {
         }
     }
 
+    /// Runs the loaded program.
+    ///
+    /// This method enters the main loop of the virtual machine, where it fetches, decodes,
+    /// and executes instructions. It also manages the program counter (PC)
+    /// and ensures that the terminal settings are restored when the execution finishes.
+    ///
+    /// # Errors
+    ///
+    /// If the execution encounters a critical error (which causes to halt), the terminal settings will be restoredvand the program will exit with an error code.
     pub fn run(&mut self) {
         let mut running = true;
         while running {
