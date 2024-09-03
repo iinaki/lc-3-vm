@@ -10,7 +10,7 @@ use crate::{
 /// * `r0`, `r1`, `r2`, `r3`, `r4`, `r5`, `r6`, `r7` - General-purpose registers.
 /// * `pc` - The program counter, which holds the address of the next instruction to execute.
 /// * `cond` - The condition register, which holds flags indicating the result of the last operation.
-/// 
+///
 #[derive(Debug)]
 pub struct Registers {
     pub r0: u16,
@@ -37,7 +37,7 @@ impl Registers {
     /// # Returns
     ///
     /// A `Registers` instance initialized to default values.
-    /// 
+    ///
     pub fn new() -> Self {
         Registers {
             r0: 0,
@@ -63,7 +63,7 @@ impl Registers {
     ///
     /// The value of the specified register. If the identifier is invalid, it prints an
     /// error message and returns `0`.
-    /// 
+    ///
     pub fn get(&self, r: u16) -> u16 {
         match r {
             0 => self.r0,
@@ -90,7 +90,7 @@ impl Registers {
     ///
     /// * `r` - A `u16` representing the register identifier (0-9).
     /// * `val` - The value to be stored in the register.
-    /// 
+    ///
     pub fn set(&mut self, r: u16, val: u16) {
         match r {
             0 => self.r0 = val,
