@@ -24,7 +24,7 @@ pub fn trap_getc(registers: &mut Registers) {
         .and_then(|read_result| read_result.ok())
         .map(|char| char as u16)
         .expect("Couldn't read from stdin");
-    register.r0 = char;
+    registers.r0 = char;
     update_flags(registers, registers.r0);
 }
 
