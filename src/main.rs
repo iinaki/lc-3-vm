@@ -1,23 +1,18 @@
-use libc::{signal, SIGINT, STDIN_FILENO};
 use std::{env, process};
-use termios::*;
 
 use lc_3_vm::{
-    input_buffering::{disable_input_buffering, handle_interrupt},
+    input_buffering::{disable_input_buffering, restore_input_buffering},
     memory::Memory,
     operations::handle_operations,
     registers::Registers,
-    utils::read_image_file,
+    utils::{flush_stdout, read_image_file},
 };
 
 fn main() {
     let mut memory = Memory::new();
     let mut registers = Registers::new();
 
-    let mut termios = Termios::from_fd(STDIN_FILENO).unwrap();
-
-    unsafe { signal(SIGINT, handle_interrupt as usize) };
-    disable_input_buffering(&mut termios);
+    let termios = disable_input_buffering();
 
     // @{Load Arguments}
     // handle de args
@@ -30,27 +25,28 @@ fn main() {
 
     let path = &args[1];
     println!("Loading image file: {}", path);
+    flush_stdout();
     match read_image_file(path, &mut memory) {
         Ok(_) => (),
         Err(e) => {
             println!("Error reading image file: {}", e);
+            flush_stdout();
+            restore_input_buffering(&termios);
             process::exit(2);
         }
     }
 
     let mut running = true;
     while running {
-        /* FETCH */
-        if registers.pc == 65535 {
-            println!("Reached end of memory");
-            break;
-        }
-        registers.pc += 1;
-        let instr = memory.read(registers.pc);
+        //@{Fetch}
+        let pc = registers.pc;
+        let instr = memory.read(pc);
+        registers.pc = registers.pc.wrapping_add(1);
         let op = instr >> 12;
 
         handle_operations(&mut registers, instr, op, &mut memory, &mut running);
     }
     //@{Shutdown}
+    restore_input_buffering(&termios);
     process::exit(1);
 }

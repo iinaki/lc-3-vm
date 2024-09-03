@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 termios = "0.3.3"
 libc = "0.2.134"
+byteorder = "1.5.0"

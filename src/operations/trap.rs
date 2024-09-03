@@ -1,12 +1,13 @@
-use std::{io::Read, process};
+use std::io::Read;
 
 use crate::{
     constants::{TRAP_GETC, TRAP_IN, TRAP_OUT, TRAP_PUTS, TRAP_PUTSP},
     memory::Memory,
     registers::Registers,
+    utils::flush_stdout,
 };
 
-use super::{flush_stdout, update_flags};
+use super::update_flags;
 
 pub fn trap_getc(registers: &mut Registers) {
     let mut buffer = [0; 1];
@@ -14,22 +15,16 @@ pub fn trap_getc(registers: &mut Registers) {
         Ok(_) => buffer[0] as u16,
         Err(e) => {
             println!("Error reading from stdin: {}", e);
+            flush_stdout();
             0
         }
     };
-    // println!("Enter a character: ");
-    // let char = std::io::stdin()
-    //     .bytes()
-    //     .next()
-    //     .and_then(|read_result| read_result.ok())
-    //     .map(|char| char as u16)
-    //     .expect("Couldn't read from stdin");
-    // registers.r0 = char;
     update_flags(registers, 0);
 }
 
 fn trap_out(registers: &mut Registers) {
-    print!("{}", registers.r0 as u8 as char);
+    let ch = char::from((registers.r0 & 0xFF) as u8);
+    print!("{}", ch);
     flush_stdout();
 }
 
@@ -46,11 +41,14 @@ fn trap_puts(registers: &mut Registers, memory: &mut Memory) {
 
 fn trap_in(registers: &mut Registers) {
     print!("Enter a character: ");
+    flush_stdout();
+
     let mut buffer = [0; 1];
     let c = match std::io::stdin().read(&mut buffer) {
         Ok(_) => buffer[0] as char,
         Err(e) => {
             println!("Error reading from stdin: {}", e);
+            flush_stdout();
             ' '
         }
     };
@@ -63,15 +61,22 @@ fn trap_in(registers: &mut Registers) {
 
 fn trap_putsp(registers: &mut Registers, memory: &mut Memory) {
     let mut i = registers.r0;
-    while memory.read(i) != 0 {
-        let char1 = memory.read(i) & 0xFF;
-        print!("{}", char1 as u8 as char);
-        let char2 = memory.read(i) >> 8;
-        if char2 != 0 {
+    let mut char = memory.read(i);
+    while char != 0 {
+        let char1 = (char & 0xFF) as u8 as char;
+        if char1 == '\0' {
+            break;
+        }
+        print!("{}", char1);
+
+        let char2 = (char >> 8) as u8 as char;
+        if char2 != '\0' {
             print!("{}", char2 as u8 as char);
         }
-        i += 1;
+        i = i.wrapping_add(1);
+        char = memory.read(i);
     }
+
     flush_stdout();
 }
 
@@ -79,14 +84,12 @@ pub fn trap_halt(running: &mut bool) {
     println!("HALT");
     flush_stdout();
     *running = false;
-    process::exit(2);
 }
 
 pub fn handle_trap(registers: &mut Registers, instr: u16, memory: &mut Memory, running: &mut bool) {
     registers.r7 = registers.pc;
 
     let trap_instr = instr & 0xFF;
-    println!("TRAP: {:x}", trap_instr);
     match trap_instr {
         TRAP_GETC => {
             trap_getc(registers);

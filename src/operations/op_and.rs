@@ -24,8 +24,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn op_and_with_registers
-() {
+    fn op_and_with_registers() {
         let mut registers = Registers::new();
         registers.set(1, 0b1100);
         registers.set(2, 0b1010);

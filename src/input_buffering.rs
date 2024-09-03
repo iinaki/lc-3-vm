@@ -4,23 +4,20 @@ use std::os::unix::io::RawFd;
 use libc::{c_int, fd_set, select, timeval, FD_SET, FD_ZERO, STDIN_FILENO};
 use termios::*;
 
+use crate::utils::flush_stdout;
 
-pub fn disable_input_buffering(termios: &mut Termios) {
+pub fn disable_input_buffering() -> Termios {
+    let mut tio = Termios::from_fd(STDIN_FILENO).unwrap();
     println!("Disabling input buffering");
-    match tcgetattr(STDIN_FILENO, termios) {
-        Ok(_) => (),
-        Err(e) => {
-            println!("Error getting terminal attributes: {}", e);
-            std::process::exit(2);
-        }
-    }
-    termios.c_lflag &= !(ICANON | ECHO);
-    tcsetattr(0, TCSANOW, termios).unwrap();
+    flush_stdout();
+    tio.c_lflag &= !(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &tio).unwrap();
+    tio
 }
-
 
 pub fn restore_input_buffering(termios: &Termios) {
     println!("Restoring input buffering");
+    flush_stdout();
     tcsetattr(STDIN_FILENO, TCSANOW, termios).unwrap();
 }
 
