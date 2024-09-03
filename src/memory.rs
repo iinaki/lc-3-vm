@@ -25,21 +25,47 @@ impl Memory {
 
     pub fn read(&mut self, address: u16) -> u16 {
         if address == MR_KBSR {
-            println!("Checking for key");
-            if check_key() {
-                self.memory[MR_KBSR as usize] = 1 << 15;
+            // pub fn handle_keyboard(memory: &mut Memory) {
+            //     let mut buffer = [0; 1];
+            //     std::io::stdin().read_exact(&mut buffer).unwrap();
+            
+            //     if buffer[0] != 0 {
+            //         memory.write(MemoryMappedReg::Kbsr as u16, 1 << 15);
+            //         memory.write(MemoryMappedReg::Kbdr as u16, buffer[0] as u16);
+            //     } else {
+            //         memory.write(MemoryMappedReg::Kbsr as u16, 0)
+            //     }
+            // }
 
-                // getchar
-                let mut buffer = [0; 1];
-                self.memory[MR_KBDR as usize] = match std::io::stdin().read_exact(&mut buffer) {
-                    Ok(_) => buffer[0] as u16,
-                    Err(e) => {
-                        println!("Error reading from stdin: {}", e);
-                        0
-                    }
-                };
+            // println!("Checking for key");
+            // if check_key() {
+            //     self.memory[MR_KBSR as usize] = 1 << 15;
+
+            //     // getchar
+            //     let mut buffer = [0; 1];
+            //     self.memory[MR_KBDR as usize] = match std::io::stdin().read(&mut buffer) {
+            //         Ok(_) => buffer[0] as u16,
+            //         Err(e) => {
+            //             println!("Error reading from stdin: {}", e);
+            //             0
+            //         }
+            //     };
+            // } else {
+            //     self.memory[MR_KBSR as usize] = 0;
+            // }
+            let mut buffer = [0; 1];
+            self.memory[MR_KBDR as usize] = match std::io::stdin().read_exact(&mut buffer) {
+                Ok(_) => buffer[0] as u16,
+                Err(e) => {
+                    println!("Error reading from stdin: {}", e);
+                    0
+                }
+            };
+            if buffer[0] != 0 {
+                self.memory[MR_KBSR as usize] = 1 << 15;
             } else {
                 self.memory[MR_KBSR as usize] = 0;
+                self.memory[MR_KBDR as usize] = 0;
             }
         }
         self.memory[address as usize]

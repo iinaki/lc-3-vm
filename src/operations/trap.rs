@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::{io::Read, process};
 
 use crate::{
     constants::{TRAP_GETC, TRAP_IN, TRAP_OUT, TRAP_PUTS, TRAP_PUTSP},
@@ -9,14 +9,22 @@ use crate::{
 use super::{flush_stdout, update_flags};
 
 pub fn trap_getc(register: &mut Register) {
-    let mut buffer = [0; 1];
-    register.r0 = match std::io::stdin().read_exact(&mut buffer) {
-        Ok(_) => buffer[0] as u16,
-        Err(e) => {
-            println!("Error reading from stdin: {}", e);
-            0
-        }
-    };
+    // let mut buffer = [0; 1];
+    // register.r0 = match std::io::stdin().read(&mut buffer) {
+    //     Ok(_) => buffer[0] as u16,
+    //     Err(e) => {
+    //         println!("Error reading from stdin: {}", e);
+    //         0
+    //     }
+    // };
+    println!("Enter a character: ");
+    let char = std::io::stdin()
+        .bytes()
+        .next()
+        .and_then(|read_result| read_result.ok())
+        .map(|char| char as u16)
+        .expect("Couldn't read from stdin");
+    register.r0 = char;
     update_flags(register, register.r0);
 }
 
@@ -27,17 +35,18 @@ fn trap_out(register: &mut Register) {
 
 fn trap_puts(register: &mut Register, memory: &mut Memory) {
     let mut i = register.r0;
-    while memory.read(i) != 0 {
-        print!("{}", memory.read(i) as u8 as char);
+    let mut c = memory.read(i);
+    while c != 0 {
+        print!("{}", (c as u8) as char);
         i += 1;
+        c = memory.read(i);
     }
     flush_stdout();
 }
 
 fn trap_in(register: &mut Register) {
-    print!("Enter a character: ");
     let mut buffer = [0; 1];
-    let c = match std::io::stdin().read_exact(&mut buffer) {
+    let c = match std::io::stdin().read(&mut buffer) {
         Ok(_) => buffer[0] as char,
         Err(e) => {
             println!("Error reading from stdin: {}", e);
@@ -69,12 +78,14 @@ pub fn trap_halt(running: &mut bool) {
     println!("HALT");
     flush_stdout();
     *running = false;
+    process::exit(2);
 }
 
 pub fn handle_trap(register: &mut Register, instr: u16, memory: &mut Memory, running: &mut bool) {
     register.r7 = register.pc;
 
     let trap_instr = instr & 0xFF;
+    println!("TRAP: {:x}", trap_instr);
     match trap_instr {
         TRAP_GETC => {
             trap_getc(register);

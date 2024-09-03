@@ -63,7 +63,7 @@ pub fn read_image_file(path: &str, memory: &mut Memory) -> Result<(), Error> {
 
     // when reading from a file, you read bytes (u8), which then need to be converted back into u16 to be stored in memory
     let mut buffer = vec![0u8; max_read * 2];
-    
+
     let bytes_read = file.read(&mut buffer)?;
 
     for i in 0..(bytes_read / 2) {
