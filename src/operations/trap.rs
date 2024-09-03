@@ -9,23 +9,23 @@ use crate::{
 use super::{flush_stdout, update_flags};
 
 pub fn trap_getc(registers: &mut Registers) {
-    // let mut buffer = [0; 1];
-    // registers.r0 = match std::io::stdin().read(&mut buffer) {
-    //     Ok(_) => buffer[0] as u16,
-    //     Err(e) => {
-    //         println!("Error reading from stdin: {}", e);
-    //         0
-    //     }
-    // };
-    println!("Enter a character: ");
-    let char = std::io::stdin()
-        .bytes()
-        .next()
-        .and_then(|read_result| read_result.ok())
-        .map(|char| char as u16)
-        .expect("Couldn't read from stdin");
-    registers.r0 = char;
-    update_flags(registers, registers.r0);
+    let mut buffer = [0; 1];
+    registers.r0 = match std::io::stdin().read(&mut buffer) {
+        Ok(_) => buffer[0] as u16,
+        Err(e) => {
+            println!("Error reading from stdin: {}", e);
+            0
+        }
+    };
+    // println!("Enter a character: ");
+    // let char = std::io::stdin()
+    //     .bytes()
+    //     .next()
+    //     .and_then(|read_result| read_result.ok())
+    //     .map(|char| char as u16)
+    //     .expect("Couldn't read from stdin");
+    // registers.r0 = char;
+    update_flags(registers, 0);
 }
 
 fn trap_out(registers: &mut Registers) {
@@ -58,7 +58,7 @@ fn trap_in(registers: &mut Registers) {
     flush_stdout();
     registers.r0 = c as u16;
 
-    update_flags(registers, registers.r0);
+    update_flags(registers, 0);
 }
 
 fn trap_putsp(registers: &mut Registers, memory: &mut Memory) {
@@ -124,7 +124,7 @@ mod tests {
                 0
             }
         };
-        update_flags(registers, registers.r0);
+        update_flags(registers, 0);
     }
 
     #[test]
