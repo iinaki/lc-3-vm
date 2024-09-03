@@ -19,7 +19,7 @@ mod tests {
 
         registers.set(0, 0x1234);
 
-        let instr: u16 = 0b0011_000_000_000010; // ST R0, #2
+        let instr: u16 = 0b0011_0000_0000_0010; // ST R0, #2
         op_st(&mut registers, instr, &mut memory);
 
         assert_eq!(memory.read(registers.pc + 2), 0x1234);
@@ -33,7 +33,7 @@ mod tests {
         registers.pc = 0x3000;
         registers.set(0, 0x5678);
 
-        let instr: u16 = 0b0011_000_111_111110; // ST R0, #-2
+        let instr: u16 = 0b0011_0001_1111_1110; // ST R0, #-2
         op_st(&mut registers, instr, &mut memory);
 
         assert_eq!(memory.read(0x2FFE), 0x5678);
@@ -47,7 +47,7 @@ mod tests {
         registers.pc = 0x3000;
         registers.set(0, 0xABCD);
 
-        let instr: u16 = 0b0011_000_000_000000; // ST R0, #0
+        let instr: u16 = 0b0011_0000_0000_0000; // ST R0, #0
         op_st(&mut registers, instr, &mut memory);
 
         assert_eq!(memory.read(0x3000), 0xABCD);
@@ -61,7 +61,7 @@ mod tests {
         registers.pc = 0xFFFF;
         registers.set(0, 0x4321);
 
-        let instr: u16 = 0b0011_000_000_000001; // ST R0, #1
+        let instr: u16 = 0b0011_0000_0000_0001; // ST R0, #1
         op_st(&mut registers, instr, &mut memory);
 
         assert_eq!(memory.read(0x0000), 0x4321);
@@ -76,7 +76,7 @@ mod tests {
         registers.set(0, 0x7777);
         registers.set(1, 0x8888);
 
-        let instr: u16 = 0b0011_000_000_000010; // ST R0, #2
+        let instr: u16 = 0b0011_0000_0000_0010; // ST R0, #2
         op_st(&mut registers, instr, &mut memory);
 
         assert_eq!(registers.get(1), 0x8888);

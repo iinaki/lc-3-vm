@@ -21,7 +21,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.cond = FL_POS;
 
-        let instr: u16 = 0b0000_001_000000101;
+        let instr: u16 = 0b0000_0010_0000_0101;
         op_br(&mut registers, instr);
 
         assert_eq!(registers.pc, 0x3005);
@@ -32,7 +32,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.cond = FL_POS;
 
-        let instr: u16 = 0b0000_010_000000101;
+        let instr: u16 = 0b0000_0100_0000_0101;
         op_br(&mut registers, instr);
 
         assert_eq!(registers.pc, 0x3000);
@@ -43,7 +43,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.cond = FL_POS;
 
-        let instr: u16 = 0b0000_001_111111011;
+        let instr: u16 = 0b0000_0011_1111_1011;
         op_br(&mut registers, instr);
 
         assert_eq!(registers.pc, 0x2FFB);
@@ -54,7 +54,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.cond = FL_POS;
 
-        let instr: u16 = 0b0000_001_000000000;
+        let instr: u16 = 0b0000_0010_0000_0000;
         op_br(&mut registers, instr);
 
         println!("PC: {}", registers.pc);

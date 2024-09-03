@@ -23,7 +23,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.pc = 0x3000;
 
-        let instr: u16 = 0b0100_1_00000010000;
+        let instr: u16 = 0b0100_1000_0001_0000;
         op_jsr(&mut registers, instr);
 
         assert_eq!(registers.r7, 0x3000);
@@ -35,7 +35,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.pc = 0x3000;
 
-        let instr: u16 = 0b0100_1_11111111111;
+        let instr: u16 = 0b0100_1111_1111_1111;
         op_jsr(&mut registers, instr);
 
         assert_eq!(registers.r7, 0x3000);
@@ -48,7 +48,7 @@ mod tests {
         registers.pc = 0x3000;
         registers.set(2, 0x4000);
 
-        let instr: u16 = 0b0100_0_000_010_000_000;
+        let instr: u16 = 0b0_1000_0000_1000_0000;
         op_jsr(&mut registers, instr);
 
         assert_eq!(registers.r7, 0x3000);
@@ -62,7 +62,7 @@ mod tests {
         registers.set(1, 0xABCD);
         registers.set(2, 0x1234);
 
-        let instr: u16 = 0b0100_0_000_010_000_000;
+        let instr: u16 = 0b0_1000_0000_1000_0000;
         op_jsr(&mut registers, instr);
 
         assert_eq!(registers.r7, 0x3000);
@@ -75,7 +75,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.pc = 0x3000;
 
-        let instr_jsr: u16 = 0b0100_1_00000000010;
+        let instr_jsr: u16 = 0b0100_1000_0000_0010;
         op_jsr(&mut registers, instr_jsr);
 
         assert_eq!(registers.r7, 0x3000);

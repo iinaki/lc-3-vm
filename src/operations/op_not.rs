@@ -20,7 +20,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.set(1, 0x0F0F);
 
-        let instr: u16 = 0b1001_000_001_111111; // NOT R0, R1
+        let instr: u16 = 0b1001_0000_0111_1111; // NOT R0, R1
         op_not(&mut registers, instr);
 
         assert_eq!(registers.get(0), 0xF0F0);
@@ -31,7 +31,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.set(1, 0x0000);
 
-        let instr: u16 = 0b1001_000_001_111111; // NOT R0, R1
+        let instr: u16 = 0b1001_0000_0111_1111; // NOT R0, R1
         op_not(&mut registers, instr);
 
         assert_eq!(registers.get(0), 0xFFFF);
@@ -42,7 +42,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.set(1, 0xFFFF);
 
-        let instr: u16 = 0b1001_000_001_111111; // NOT R0, R1
+        let instr: u16 = 0b1001_0000_0111_1111; // NOT R0, R1
         op_not(&mut registers, instr);
 
         assert_eq!(registers.get(0), 0x0000);
@@ -54,7 +54,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.set(1, 0x7FFF);
 
-        let instr: u16 = 0b1001_000_001_111111; // NOT R0, R1
+        let instr: u16 = 0b1001_0000_0111_1111; // NOT R0, R1
         op_not(&mut registers, instr);
 
         assert_eq!(registers.get(0), 0x8000);
