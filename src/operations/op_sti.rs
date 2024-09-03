@@ -1,6 +1,4 @@
-use crate::{memory::Memory, registers::Registers};
-
-use super::sign_extend;
+use crate::{memory::Memory, registers::Registers, utils::sign_extend};
 
 pub fn op_sti(registers: &mut Registers, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;

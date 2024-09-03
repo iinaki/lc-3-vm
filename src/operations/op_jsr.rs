@@ -1,6 +1,4 @@
-use crate::registers::Registers;
-
-use super::sign_extend;
+use crate::{registers::Registers, utils::sign_extend};
 
 pub fn op_jsr(registers: &mut Registers, instr: u16) {
     let long_flag = (instr >> 11) & 1;

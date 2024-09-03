@@ -1,6 +1,8 @@
-use crate::{memory::Memory, registers::Registers};
-
-use super::{sign_extend, update_flags};
+use crate::{
+    memory::Memory,
+    registers::Registers,
+    utils::{sign_extend, update_flags},
+};
 
 pub fn op_ldi(registers: &mut Registers, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;

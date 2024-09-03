@@ -1,6 +1,4 @@
-use crate::registers::Registers;
-
-use super::sign_extend;
+use crate::{registers::Registers, utils::sign_extend};
 
 pub fn op_br(registers: &mut Registers, instr: u16) {
     let pc_offset = sign_extend(instr & 0x1FF, 9);

@@ -1,6 +1,4 @@
-use crate::registers::Registers;
-
-use super::update_flags;
+use crate::{registers::Registers, utils::update_flags};
 
 pub fn op_not(registers: &mut Registers, instr: u16) {
     let r0 = (instr >> 9) & 0x7;

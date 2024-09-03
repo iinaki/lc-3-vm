@@ -15,8 +15,8 @@ pub mod trap;
 
 use crate::{
     constants::{
-        FL_NEG, FL_POS, FL_ZRO, OP_ADD, OP_AND, OP_BR, OP_JMP, OP_JSR, OP_LD, OP_LDI, OP_LDR,
-        OP_LEA, OP_NOT, OP_ST, OP_STI, OP_STR, OP_TRAP,
+        OP_ADD, OP_AND, OP_BR, OP_JMP, OP_JSR, OP_LD, OP_LDI, OP_LDR, OP_LEA, OP_NOT, OP_ST,
+        OP_STI, OP_STR, OP_TRAP,
     },
     memory::Memory,
     registers::Registers,
@@ -39,25 +39,6 @@ use crate::operations::{
     op_str::op_str,
     trap::{handle_trap, trap_halt},
 };
-
-fn sign_extend(x: u16, bit_count: u16) -> i16 {
-    let y = if (x >> (bit_count - 1)) & 1 != 0 {
-        x | (0xFFFF << bit_count)
-    } else {
-        x
-    };
-    y as i16
-}
-
-fn update_flags(registers: &mut Registers, r: u16) {
-    if registers.get(r) == 0 {
-        registers.cond = FL_ZRO;
-    } else if (registers.get(r) >> 15) & 1 == 1 {
-        registers.cond = FL_NEG;
-    } else {
-        registers.cond = FL_POS;
-    }
-}
 
 pub fn handle_operations(
     registers: &mut Registers,

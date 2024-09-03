@@ -4,10 +4,8 @@ use crate::{
     constants::{TRAP_GETC, TRAP_IN, TRAP_OUT, TRAP_PUTS, TRAP_PUTSP},
     memory::Memory,
     registers::Registers,
-    utils::flush_stdout,
+    utils::{flush_stdout, update_flags},
 };
-
-use super::update_flags;
 
 pub fn trap_getc(registers: &mut Registers) {
     let mut buffer = [0; 1];
