@@ -23,16 +23,17 @@ fn main() {
         process::exit(2);
     }
 
-    let path = &args[1];
-    println!("Loading image file: {}", path);
-    flush_stdout();
-    match read_image_file(path, &mut memory) {
-        Ok(_) => (),
-        Err(e) => {
-            println!("Error reading image file: {}", e);
-            flush_stdout();
-            restore_input_buffering(&termios);
-            process::exit(2);
+    for path in &args[1..] {
+        println!("Loading image file: {}", path);
+        flush_stdout();
+        match read_image_file(path, &mut memory) {
+            Ok(_) => (),
+            Err(e) => {
+                println!("Error reading image file: {}", e);
+                flush_stdout();
+                restore_input_buffering(&termios);
+                process::exit(2);
+            }
         }
     }
 
