@@ -2,9 +2,6 @@
 
 Following [this tutorial.](https://www.jmeiners.com/lc3-vm/)
 
-## OP Codes
-
-
 ### How to run
 - Clone the repository with `git clone`.
 - Currently the VM is run by using `cargo run <image-file-1> .. <image-file-k>`, with image files being a `.obj` file containing some assembly code.
