@@ -3,7 +3,12 @@ use crate::{
     utils::{sign_extend, update_flags},
 };
 
-/// Executes the AND operation.
+/// Performs a bitwise AND operation between two operands. 
+/// 
+/// The first operand is always a register, and the second 
+/// operand can be another register or an immediate value. The result of the AND 
+/// operation is stored in the dest register, and the condition 
+/// flags are updated based on the result.
 ///
 /// # Parameters
 ///

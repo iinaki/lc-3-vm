@@ -1,6 +1,9 @@
 use crate::{memory::Memory, registers::Registers, utils::sign_extend};
 
 /// Executes the ST operation.
+/// 
+/// Stores the value from the specified register into memory 
+/// at the address computed by adding a PC-relative offset to the current program counter.
 ///
 /// # Parameters
 ///

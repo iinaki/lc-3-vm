@@ -1,6 +1,9 @@
 use crate::{memory::Memory, registers::Registers, utils::sign_extend};
 
 /// Executes the STI operation.
+/// 
+/// Stores the value from the specified register into memory at an address determined indirectly. 
+/// The address is first calculated using a PC-relative offset, and the value from the register is stored at the memory address retrieved from that location.
 ///
 /// # Parameters
 ///

@@ -1,6 +1,9 @@
 use crate::{memory::Memory, registers::Registers, utils::sign_extend};
 
 /// Executes the STR operation.
+/// 
+/// Stores the value from a specified register into memory. 
+/// The target memory address is calculated by adding a signed offset to the value from another register.
 ///
 /// # Parameters
 ///

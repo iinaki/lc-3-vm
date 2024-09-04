@@ -1,6 +1,10 @@
 use crate::{registers::Registers, utils::update_flags};
 
 /// Executes the NOT operation.
+/// 
+/// Performs a bitwise NOT operation on the value in the source register, 
+/// storing the result in the destination register. The condition flags are then updated 
+/// based on the result.
 ///
 /// # Parameters
 ///

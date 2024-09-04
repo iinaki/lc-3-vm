@@ -1,6 +1,10 @@
 use crate::{registers::Registers, utils::sign_extend};
 
 /// Executes the BRANCH operation.
+/// 
+/// Conditionally updates the program counter based on the 
+/// specified condition flags. If the condition is met, the program counter 
+/// is adjusted by the sign-extended offset to branch to a new location.
 ///
 /// # Parameters
 ///
