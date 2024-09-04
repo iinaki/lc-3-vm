@@ -1,7 +1,19 @@
-use crate::registers::Registers;
+use crate::{
+    registers::Registers,
+    utils::{sign_extend, update_flags},
+};
 
-use super::{sign_extend, update_flags};
-
+/// Executes the LEA operation.
+///
+/// Computes an address by adding a sign-extended offset to the current value
+/// of the program counter (PC). This computed address is then stored in the destination
+/// register. The condition flags are updated based on the computed address.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_lea(registers: &mut Registers, instr: u16) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);

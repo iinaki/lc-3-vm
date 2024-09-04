@@ -1,7 +1,16 @@
-use crate::registers::Registers;
+use crate::{registers::Registers, utils::sign_extend};
 
-use super::sign_extend;
-
+/// Executes the BRANCH operation.
+///
+/// Conditionally updates the program counter based on the
+/// specified condition flags. If the condition is met, the program counter
+/// is adjusted by the sign-extended offset to branch to a new location.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_br(registers: &mut Registers, instr: u16) {
     let pc_offset = sign_extend(instr & 0x1FF, 9);
     let cond_flag = (instr >> 9) & 0x7;

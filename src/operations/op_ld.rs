@@ -1,7 +1,19 @@
-use crate::{memory::Memory, registers::Registers};
+use crate::{
+    memory::Memory,
+    registers::Registers,
+    utils::{sign_extend, update_flags},
+};
 
-use super::{sign_extend, update_flags};
-
+/// Executes the LD operation.
+///
+/// Loads a value from memory into a register. The address is computed by
+/// adding a sign-extended offset to the current program counter, and the result is stored in the destination register. The condition flags are then updated based on the loaded value.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_ld(registers: &mut Registers, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);

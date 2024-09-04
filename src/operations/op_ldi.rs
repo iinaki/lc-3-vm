@@ -1,7 +1,21 @@
-use crate::{memory::Memory, registers::Registers};
+use crate::{
+    memory::Memory,
+    registers::Registers,
+    utils::{sign_extend, update_flags},
+};
 
-use super::{sign_extend, update_flags};
-
+/// Executes the LDI operation.
+///
+/// Performs an indirect load. It first retrieves an address from memory using
+/// a sign-extended offset added to the program counter. Then, it uses that address to load
+/// the final value from memory into the destination register. The condition flags are updated
+/// based on the loaded value.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_ldi(registers: &mut Registers, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);

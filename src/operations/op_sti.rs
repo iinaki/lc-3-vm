@@ -1,7 +1,15 @@
-use crate::{memory::Memory, registers::Registers};
+use crate::{memory::Memory, registers::Registers, utils::sign_extend};
 
-use super::sign_extend;
-
+/// Executes the STI operation.
+///
+/// Stores the value from the specified register into memory at an address determined indirectly.
+/// The address is first calculated using a PC-relative offset, and the value from the register is stored at the memory address retrieved from that location.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_sti(registers: &mut Registers, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);

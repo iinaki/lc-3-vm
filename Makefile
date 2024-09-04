@@ -1,4 +1,8 @@
-all: test clippy fmt run
+all: test clippy fmt example-2048
+
+build:
+	cargo build --release
+	cargo install --path .
 
 test:
 	cargo test
@@ -8,9 +12,6 @@ clippy:
 
 fmt:
 	cargo fmt
-
-run:
-	cargo run
 
 example-2048:
 	cargo run examples/2048.obj

@@ -2,8 +2,13 @@ use byteorder::{BigEndian, ReadBytesExt};
 use std::io::{BufReader, Write};
 use std::{fs::File, io::Error};
 
+use crate::constants::{FL_NEG, FL_POS, FL_ZRO};
 use crate::memory::Memory;
+use crate::registers::Registers;
 
+/// Reads an image file into memory. The image file is expected to start with
+/// a 16-bit address indicating where in memory the data should be loaded, followed by
+/// 16-bit instructions to be stored sequentially in memory.
 pub fn read_image_file(path: &str, memory: &mut Memory) -> Result<(), Error> {
     let file = File::open(path)?;
     let mut reader = BufReader::new(file);
@@ -30,4 +35,25 @@ pub fn flush_stdout() {
             eprintln!("Error flushing stdout: {}", e);
         }
     };
+}
+
+/// Updates the condition flags in the `Registers` struct.
+pub fn update_flags(registers: &mut Registers, r: u16) {
+    if registers.get(r) == 0 {
+        registers.cond = FL_ZRO;
+    } else if (registers.get(r) >> 15) & 1 == 1 {
+        registers.cond = FL_NEG;
+    } else {
+        registers.cond = FL_POS;
+    }
+}
+
+/// Sign-extends a value based on a given bit count.
+pub fn sign_extend(x: u16, bit_count: u16) -> i16 {
+    let y = if (x >> (bit_count - 1)) & 1 != 0 {
+        x | (0xFFFF << bit_count)
+    } else {
+        x
+    };
+    y as i16
 }

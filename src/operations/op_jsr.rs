@@ -1,7 +1,16 @@
-use crate::registers::Registers;
+use crate::{registers::Registers, utils::sign_extend};
 
-use super::sign_extend;
-
+/// Executes the JSR operation.
+///
+/// Performs a jump to a subroutine. It saves the current program counter
+/// in the R7 register and then updates the PC to the target address, which can be provided
+/// either by a direct offset (JSR) or by a register (JSRR).
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_jsr(registers: &mut Registers, instr: u16) {
     let long_flag = (instr >> 11) & 1;
     registers.r7 = registers.pc;

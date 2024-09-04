@@ -1,7 +1,15 @@
-use crate::{memory::Memory, registers::Registers};
+use crate::{memory::Memory, registers::Registers, utils::sign_extend};
 
-use super::sign_extend;
-
+/// Executes the ST operation.
+///
+/// Stores the value from the specified register into memory
+/// at the address computed by adding a PC-relative offset to the current program counter.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_st(registers: &mut Registers, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);

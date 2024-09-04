@@ -1,7 +1,21 @@
-use crate::{memory::Memory, registers::Registers};
+use crate::{
+    memory::Memory,
+    registers::Registers,
+    utils::{sign_extend, update_flags},
+};
 
-use super::{sign_extend, update_flags};
-
+/// Executes the LDR operation.
+///
+/// Performs a load operation using a base register and an offset. The final
+/// address is computed by adding a sign-extended offset to the value in the base register.
+/// The value at this computed address is loaded into the destination register. The condition
+/// flags are updated based on the loaded value.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_ldr(registers: &mut Registers, instr: u16, memory: &mut Memory) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;

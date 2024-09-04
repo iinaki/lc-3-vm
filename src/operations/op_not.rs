@@ -1,7 +1,16 @@
-use crate::registers::Registers;
+use crate::{registers::Registers, utils::update_flags};
 
-use super::update_flags;
-
+/// Executes the NOT operation.
+///
+/// Performs a bitwise NOT operation on the value in the source register,
+/// storing the result in the destination register. The condition flags are then updated
+/// based on the result.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_not(registers: &mut Registers, instr: u16) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;

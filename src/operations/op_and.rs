@@ -1,7 +1,20 @@
-use crate::registers::Registers;
+use crate::{
+    registers::Registers,
+    utils::{sign_extend, update_flags},
+};
 
-use super::{sign_extend, update_flags};
-
+/// Performs a bitwise AND operation between two operands.
+///
+/// The first operand is always a register, and the second
+/// operand can be another register or an immediate value. The result of the AND
+/// operation is stored in the dest register, and the condition
+/// flags are updated based on the result.
+///
+/// # Parameters
+///
+/// - `registers`: A mutable reference to the `Registers` struct.
+/// - `instr`: A 16-bit instruction.
+///
 pub fn op_and(registers: &mut Registers, instr: u16) {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
