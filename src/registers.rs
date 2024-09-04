@@ -32,7 +32,7 @@ impl Default for Registers {
 }
 
 impl Registers {
-    /// Creates a new `Registers` instance with initial values. Sets all general-purpose registers to `0`, the program counter to `PC_START`, the condition register to `FL_ZRO`, and the `count` to `0`.
+    /// Creates a new `Registers` instance with initial values. Sets all general-purpose registers to `0`, the program counter to `PC_START`, the condition register to `FL_ZRO`.
     ///
     /// # Returns
     ///

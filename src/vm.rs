@@ -1,4 +1,4 @@
-use std::process;
+use std::{io::Error, process};
 
 use termios::Termios;
 
@@ -16,6 +16,7 @@ use crate::{
 /// * `registers` - Holds the state of the LC-3 registers.
 /// * `memory` - Manages the memory of the LC-3 machine.
 /// * `termios` - Stores the terminal I/O settings to handle input buffering.
+///
 pub struct Vm {
     registers: Registers,
     memory: Memory,
@@ -42,30 +43,22 @@ impl Vm {
     /// If an error occurs while reading an image file, the program will print an error message,
     /// restore the terminal settings, and exit with an error code.
     ///
-    pub fn new_from_images(args: Vec<String>) -> Vm {
+    pub fn new_from_images(args: Vec<String>) -> Result<Vm, Error> {
         let mut memory = Memory::new();
         let registers = Registers::new();
-        let termios = disable_input_buffering();
+        let termios = disable_input_buffering()?;
 
         for path in &args[1..] {
             println!("Loading image file: {}", path);
             flush_stdout();
-            match read_image_file(path, &mut memory) {
-                Ok(_) => (),
-                Err(e) => {
-                    println!("Error reading image file: {}", e);
-                    flush_stdout();
-                    restore_input_buffering(&termios);
-                    process::exit(2);
-                }
-            }
+            read_image_file(path, &mut memory)?;
         }
 
-        Vm {
+        Ok(Vm {
             registers,
             memory,
             termios,
-        }
+        })
     }
 
     /// Runs the loaded program.
@@ -76,8 +69,13 @@ impl Vm {
     ///
     /// # Errors
     ///
-    /// If the execution encounters a critical error (which causes to halt), the terminal settings will be restoredvand the program will exit with an error code.
-    pub fn run(&mut self) {
+    /// If the execution encounters a critical error (which causes to halt), the terminal settings will be restored and the program will exit with an error code.
+    ///
+    /// # Returns
+    ///
+    /// A Result indicating whether the execution was successful or an error occurred.
+    ///
+    pub fn run(&mut self) -> Result<(), Error> {
         let mut running = true;
         while running {
             let pc = self.registers.pc;
@@ -93,7 +91,7 @@ impl Vm {
                 &mut running,
             );
         }
-        restore_input_buffering(&self.termios);
+        restore_input_buffering(&self.termios)?;
         process::exit(1);
     }
 }

@@ -16,6 +16,7 @@ use crate::{
 /// # Parameters
 ///
 /// - `registers`: A mutable reference to the `Registers` struct.
+///
 pub fn trap_getc(registers: &mut Registers) {
     let mut buffer = [0; 1];
     registers.r0 = match std::io::stdin().read(&mut buffer) {
