@@ -4,9 +4,9 @@ use crate::{
 };
 
 /// Executes the LEA operation.
-/// 
-/// Computes an address by adding a sign-extended offset to the current value 
-/// of the program counter (PC). This computed address is then stored in the destination 
+///
+/// Computes an address by adding a sign-extended offset to the current value
+/// of the program counter (PC). This computed address is then stored in the destination
 /// register. The condition flags are updated based on the computed address.
 ///
 /// # Parameters

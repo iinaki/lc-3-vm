@@ -5,10 +5,10 @@ use crate::{
 };
 
 /// Executes the LDR operation.
-/// 
-/// Performs a load operation using a base register and an offset. The final 
-/// address is computed by adding a sign-extended offset to the value in the base register. 
-/// The value at this computed address is loaded into the destination register. The condition 
+///
+/// Performs a load operation using a base register and an offset. The final
+/// address is computed by adding a sign-extended offset to the value in the base register.
+/// The value at this computed address is loaded into the destination register. The condition
 /// flags are updated based on the loaded value.
 ///
 /// # Parameters

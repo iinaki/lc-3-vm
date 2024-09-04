@@ -4,7 +4,7 @@ use crate::{
 };
 
 /// Executes the ADD operation.
-/// 
+///
 /// The add can be between two registers or between a register and an immediate value.
 /// The result is stored in a dest register, and the condition flags are updated
 /// to reflect the result of the operation.

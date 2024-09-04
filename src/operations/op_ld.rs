@@ -5,8 +5,8 @@ use crate::{
 };
 
 /// Executes the LD operation.
-/// 
-/// Loads a value from memory into a register. The address is computed by 
+///
+/// Loads a value from memory into a register. The address is computed by
 /// adding a sign-extended offset to the current program counter, and the result is stored in the destination register. The condition flags are then updated based on the loaded value.
 ///
 /// # Parameters

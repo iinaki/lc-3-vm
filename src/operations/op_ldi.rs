@@ -5,10 +5,10 @@ use crate::{
 };
 
 /// Executes the LDI operation.
-/// 
-/// Performs an indirect load. It first retrieves an address from memory using 
-/// a sign-extended offset added to the program counter. Then, it uses that address to load 
-/// the final value from memory into the destination register. The condition flags are updated 
+///
+/// Performs an indirect load. It first retrieves an address from memory using
+/// a sign-extended offset added to the program counter. Then, it uses that address to load
+/// the final value from memory into the destination register. The condition flags are updated
 /// based on the loaded value.
 ///
 /// # Parameters

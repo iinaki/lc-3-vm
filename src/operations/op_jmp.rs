@@ -2,7 +2,7 @@ use crate::registers::Registers;
 
 /// Executes the JUMP operation.
 ///
-/// This opcode updates the program counter to the address stored in the specified 
+/// This opcode updates the program counter to the address stored in the specified
 /// register, allowing for an unconditional jump to a new location in the program.
 ///
 /// # Parameters
