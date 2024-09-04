@@ -1,6 +1,6 @@
 # VM that uses LC-3 architecture
 
-This project is an implementation of a LC-3 virtual machine, following [this tutorial.](https://www.jmeiners.com/lc3-vm/).
+This project is an implementation of a LC-3 virtual machine, following [this tutorial](https://www.jmeiners.com/lc3-vm/).
 
 ### How to run
 - Clone the repository with `git clone`, and enter de directory containing the VM code.
