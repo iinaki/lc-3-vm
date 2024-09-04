@@ -13,8 +13,6 @@ pub mod op_sti;
 pub mod op_str;
 pub mod trap;
 
-use std::io::Write;
-
 use crate::{
     constants::{
         FL_NEG, FL_POS, FL_ZRO, OP_ADD, OP_AND, OP_BR, OP_JMP, OP_JSR, OP_LD, OP_LDI, OP_LDR,
@@ -22,6 +20,7 @@ use crate::{
     },
     memory::Memory,
     registers::Registers,
+    utils::flush_stdout,
 };
 
 use crate::operations::{
@@ -50,16 +49,6 @@ fn sign_extend(x: u16, bit_count: u16) -> i16 {
     y as i16
 }
 
-/// Flushes the stdout buffer
-fn flush_stdout() {
-    match std::io::stdout().flush() {
-        Ok(_) => {}
-        Err(e) => {
-            println!("Error flushing stdout: {}", e);
-        }
-    };
-}
-
 fn update_flags(registers: &mut Registers, r: u16) {
     if registers.get(r) == 0 {
         registers.cond = FL_ZRO;
@@ -77,7 +66,6 @@ pub fn handle_operations(
     memory: &mut Memory,
     running: &mut bool,
 ) {
-    println!("PERFORMING OP: {}", op);
     match op {
         OP_ADD => {
             op_add(registers, instr);
@@ -119,6 +107,7 @@ pub fn handle_operations(
         }
         _ => {
             println!("Bad opcode: {}", op);
+            flush_stdout();
             trap_halt(running);
         }
     }

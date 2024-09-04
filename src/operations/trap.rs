@@ -4,43 +4,51 @@ use crate::{
     constants::{TRAP_GETC, TRAP_IN, TRAP_OUT, TRAP_PUTS, TRAP_PUTSP},
     memory::Memory,
     registers::Registers,
+    utils::flush_stdout,
 };
 
-use super::{flush_stdout, update_flags};
+use super::update_flags;
 
 pub fn trap_getc(registers: &mut Registers) {
     let mut buffer = [0; 1];
-    registers.r0 = match std::io::stdin().read_exact(&mut buffer) {
+    registers.r0 = match std::io::stdin().read(&mut buffer) {
         Ok(_) => buffer[0] as u16,
         Err(e) => {
             println!("Error reading from stdin: {}", e);
+            flush_stdout();
             0
         }
     };
-    update_flags(registers, registers.r0);
+    update_flags(registers, 0);
 }
 
 fn trap_out(registers: &mut Registers) {
-    print!("{}", registers.r0 as u8 as char);
+    let ch = char::from((registers.r0 & 0xFF) as u8);
+    print!("{}", ch);
     flush_stdout();
 }
 
 fn trap_puts(registers: &mut Registers, memory: &mut Memory) {
     let mut i = registers.r0;
-    while memory.read(i) != 0 {
-        print!("{}", memory.read(i) as u8 as char);
+    let mut c = memory.read(i);
+    while c != 0 {
+        print!("{}", (c as u8) as char);
         i += 1;
+        c = memory.read(i);
     }
     flush_stdout();
 }
 
 fn trap_in(registers: &mut Registers) {
     print!("Enter a character: ");
+    flush_stdout();
+
     let mut buffer = [0; 1];
-    let c = match std::io::stdin().read_exact(&mut buffer) {
+    let c = match std::io::stdin().read(&mut buffer) {
         Ok(_) => buffer[0] as char,
         Err(e) => {
             println!("Error reading from stdin: {}", e);
+            flush_stdout();
             ' '
         }
     };
@@ -48,20 +56,27 @@ fn trap_in(registers: &mut Registers) {
     flush_stdout();
     registers.r0 = c as u16;
 
-    update_flags(registers, registers.r0);
+    update_flags(registers, 0);
 }
 
 fn trap_putsp(registers: &mut Registers, memory: &mut Memory) {
     let mut i = registers.r0;
-    while memory.read(i) != 0 {
-        let char1 = memory.read(i) & 0xFF;
-        print!("{}", char1 as u8 as char);
-        let char2 = memory.read(i) >> 8;
-        if char2 != 0 {
+    let mut char = memory.read(i);
+    while char != 0 {
+        let char1 = (char & 0xFF) as u8 as char;
+        if char1 == '\0' {
+            break;
+        }
+        print!("{}", char1);
+
+        let char2 = (char >> 8) as u8 as char;
+        if char2 != '\0' {
             print!("{}", char2 as u8 as char);
         }
-        i += 1;
+        i = i.wrapping_add(1);
+        char = memory.read(i);
     }
+
     flush_stdout();
 }
 
@@ -112,7 +127,7 @@ mod tests {
                 0
             }
         };
-        update_flags(registers, registers.r0);
+        update_flags(registers, 0);
     }
 
     #[test]

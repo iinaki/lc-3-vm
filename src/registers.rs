@@ -1,4 +1,7 @@
-use crate::constants::{FL_ZRO, PC_START};
+use crate::{
+    constants::{FL_ZRO, PC_START},
+    utils::flush_stdout,
+};
 
 #[derive(Debug)]
 pub struct Registers {
@@ -52,6 +55,7 @@ impl Registers {
             9 => self.cond,
             _ => {
                 println!("Invalid registers at get");
+                flush_stdout();
                 0
             }
         }
@@ -69,7 +73,10 @@ impl Registers {
             7 => self.r7 = val,
             8 => self.pc = val,
             9 => self.cond = val,
-            _ => println!("Invalid registers at set"),
+            _ => {
+                println!("Invalid registers at set");
+                flush_stdout();
+            }
         }
     }
 }

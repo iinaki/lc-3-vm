@@ -19,7 +19,7 @@ mod tests {
     fn op_lea_positive_offset() {
         let mut registers = Registers::new();
 
-        let instr: u16 = 0b1110_000_000000101; // LEA R0, PC + 5
+        let instr: u16 = 0b1110_0000_0000_0101; // LEA R0, PC + 5
         op_lea(&mut registers, instr);
 
         assert_eq!(registers.get(0), 0x3005);
@@ -29,7 +29,7 @@ mod tests {
     fn op_lea_negative_offset() {
         let mut registers = Registers::new();
 
-        let instr: u16 = 0b1110_000_111111011; // LEA R0, PC - 5
+        let instr: u16 = 0b1110_0001_1111_1011; // LEA R0, PC - 5
         op_lea(&mut registers, instr);
 
         assert_eq!(registers.get(0), 0x2FFB);
@@ -39,7 +39,7 @@ mod tests {
     fn op_lea_zero_offset() {
         let mut registers = Registers::new();
 
-        let instr: u16 = 0b1110_000_000000000; // LEA R0, PC + 0
+        let instr: u16 = 0b1110_0000_0000_0000; // LEA R0, PC + 0
         op_lea(&mut registers, instr);
 
         assert_eq!(registers.get(0), 0x3000);
@@ -50,7 +50,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.pc = 0x0000;
 
-        let instr: u16 = 0b1110_000_000000000; // LEA R0, PC + 0
+        let instr: u16 = 0b1110_0000_0000_0000; // LEA R0, PC + 0
         op_lea(&mut registers, instr);
 
         assert_eq!(registers.get(0), 0x0000);
@@ -61,7 +61,7 @@ mod tests {
     fn op_lea_preserves_pc() {
         let mut registers = Registers::new();
 
-        let instr: u16 = 0b1110_000_000000101; // LEA R0, PC + 5
+        let instr: u16 = 0b1110_0000_0000_0101; // LEA R0, PC + 5
         let initial_pc = registers.pc;
         op_lea(&mut registers, instr);
 

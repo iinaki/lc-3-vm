@@ -2,7 +2,7 @@ use std::io::Read;
 
 use crate::{
     constants::{MEMORY_SIZE, MR_KBDR, MR_KBSR},
-    input_buffering::check_key,
+    utils::flush_stdout,
 };
 
 #[derive(Debug)]
@@ -25,20 +25,20 @@ impl Memory {
 
     pub fn read(&mut self, address: u16) -> u16 {
         if address == MR_KBSR {
-            if check_key() {
-                self.memory[MR_KBSR as usize] = 1 << 15;
-
-                // getchar
-                let mut buffer = [0; 1];
-                self.memory[MR_KBDR as usize] = match std::io::stdin().read_exact(&mut buffer) {
-                    Ok(_) => buffer[0] as u16,
-                    Err(e) => {
-                        println!("Error reading from stdin: {}", e);
-                        0
-                    }
-                };
-            } else {
+            let mut buffer = [0; 1];
+            let char = match std::io::stdin().read_exact(&mut buffer) {
+                Ok(_) => buffer[0] as u16,
+                Err(e) => {
+                    println!("Error reading from stdin: {}", e);
+                    flush_stdout();
+                    0
+                }
+            };
+            if char == 0 {
                 self.memory[MR_KBSR as usize] = 0;
+            } else {
+                self.memory[MR_KBSR as usize] = 1 << 15;
+                self.memory[MR_KBDR as usize] = char;
             }
         }
         self.memory[address as usize]
