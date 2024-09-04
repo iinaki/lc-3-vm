@@ -3,7 +3,7 @@
 This project is an implementation of a LC-3 virtual machine, following [this tutorial](https://www.jmeiners.com/lc3-vm/).
 
 ### How to run
-- Clone the repository with `git clone`, and enter de directory containing the VM code.
+- Clone the repository with `git clone`, and enter the directory containing the VM code.
 - Run `make build` to compile the code.
 - The VM needs at least one image file of assembly code to run a program. To run use `lc-3-vm <path-to-image-file-1> .. <path-to-image-file-n>`, with image files being a `.obj` file. 
 
