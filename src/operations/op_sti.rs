@@ -1,4 +1,4 @@
-use crate::{memory::Memory, registers::Registers, utils::sign_extend};
+use crate::{memory::Memory, registers::Registers, utils::sign_extend, vm_error::VmError};
 
 /// Executes the STI operation.
 ///
@@ -10,11 +10,12 @@ use crate::{memory::Memory, registers::Registers, utils::sign_extend};
 /// - `registers`: A mutable reference to the `Registers` struct.
 /// - `instr`: A 16-bit instruction.
 ///
-pub fn op_sti(registers: &mut Registers, instr: u16, memory: &mut Memory) {
+pub fn op_sti(registers: &mut Registers, instr: u16, memory: &mut Memory) -> Result<(), VmError> {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
-    let addr = memory.read((registers.pc as i16 + pc_offset) as u16);
-    memory.write(addr, registers.get(r0));
+    let addr = memory.read((registers.pc as i16 + pc_offset) as u16)?;
+    memory.write(addr, registers.get(r0)?);
+    Ok(())
 }
 
 #[cfg(test)]
@@ -27,14 +28,14 @@ mod tests {
         let mut memory = Memory::new();
 
         registers.pc = 0x3000;
-        registers.set(0, 0x1234);
+        registers.set(0, 0x1234).unwrap();
 
         memory.write(0x3002, 0x4000);
 
         let instr: u16 = 0b1011_0000_0000_0010; // STI R0, #2
-        op_sti(&mut registers, instr, &mut memory);
+        op_sti(&mut registers, instr, &mut memory).unwrap();
 
-        assert_eq!(memory.read(0x4000), 0x1234);
+        assert_eq!(memory.read(0x4000).unwrap(), 0x1234);
     }
 
     #[test]
@@ -43,14 +44,14 @@ mod tests {
         let mut memory = Memory::new();
 
         registers.pc = 0x3000;
-        registers.set(0, 0x5678);
+        registers.set(0, 0x5678).unwrap();
 
         memory.write(0x2FFE, 0x5000);
 
         let instr: u16 = 0b1011_0001_1111_1110; // STI R0, #-2
-        op_sti(&mut registers, instr, &mut memory);
+        op_sti(&mut registers, instr, &mut memory).unwrap();
 
-        assert_eq!(memory.read(0x5000), 0x5678);
+        assert_eq!(memory.read(0x5000).unwrap(), 0x5678);
     }
 
     #[test]
@@ -59,14 +60,14 @@ mod tests {
         let mut memory = Memory::new();
 
         registers.pc = 0x3000;
-        registers.set(0, 0xABCD);
+        registers.set(0, 0xABCD).unwrap();
 
         memory.write(0x3000, 0x6000);
 
         let instr: u16 = 0b1011_0000_0000_0000; // STI R0, #0
-        op_sti(&mut registers, instr, &mut memory);
+        op_sti(&mut registers, instr, &mut memory).unwrap();
 
-        assert_eq!(memory.read(0x6000), 0xABCD);
+        assert_eq!(memory.read(0x6000).unwrap(), 0xABCD);
     }
 
     #[test]
@@ -75,14 +76,14 @@ mod tests {
         let mut memory = Memory::new();
 
         registers.pc = 0xFFFF;
-        registers.set(0, 0x4321);
+        registers.set(0, 0x4321).unwrap();
 
         memory.write(0x0000, 0x7000);
 
         let instr: u16 = 0b1011_0000_0000_0001; // STI R0, #1
-        op_sti(&mut registers, instr, &mut memory);
+        op_sti(&mut registers, instr, &mut memory).unwrap();
 
-        assert_eq!(memory.read(0x7000), 0x4321);
+        assert_eq!(memory.read(0x7000).unwrap(), 0x4321);
     }
 
     #[test]
@@ -91,14 +92,14 @@ mod tests {
         let mut memory = Memory::new();
 
         registers.pc = 0x3000;
-        registers.set(0, 0x7777);
-        registers.set(1, 0x8888);
+        registers.set(0, 0x7777).unwrap();
+        registers.set(1, 0x8888).unwrap();
 
         memory.write(0x3002, 0x8000);
 
         let instr: u16 = 0b1011_0000_0000_0010; // STI R0, #2
-        op_sti(&mut registers, instr, &mut memory);
+        op_sti(&mut registers, instr, &mut memory).unwrap();
 
-        assert_eq!(registers.get(1), 0x8888);
+        assert_eq!(registers.get(1).unwrap(), 0x8888);
     }
 }

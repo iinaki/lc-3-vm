@@ -21,6 +21,7 @@ use crate::{
     memory::Memory,
     registers::Registers,
     utils::flush_stdout,
+    vm_error::VmError,
 };
 
 use crate::operations::{
@@ -56,50 +57,29 @@ pub fn handle_operations(
     op: u16,
     memory: &mut Memory,
     running: &mut bool,
-) {
+) -> Result<(), VmError> {
     match op {
-        OP_ADD => {
-            op_add(registers, instr);
-        }
-        OP_AND => {
-            op_and(registers, instr);
-        }
+        OP_ADD => op_add(registers, instr),
+        OP_AND => op_and(registers, instr),
         OP_NOT => op_not(registers, instr),
         OP_BR => {
             op_br(registers, instr);
+            Ok(())
         }
-        OP_JMP => {
-            op_jmp(registers, instr);
-        }
-        OP_JSR => {
-            op_jsr(registers, instr);
-        }
-        OP_LD => {
-            op_ld(registers, instr, memory);
-        }
-        OP_LDI => {
-            op_ldi(registers, instr, memory);
-        }
+        OP_JMP => op_jmp(registers, instr),
+        OP_JSR => op_jsr(registers, instr),
+        OP_LD => op_ld(registers, instr, memory),
+        OP_LDI => op_ldi(registers, instr, memory),
         OP_LDR => op_ldr(registers, instr, memory),
-        OP_LEA => {
-            op_lea(registers, instr);
-        }
-        OP_ST => {
-            op_st(registers, instr, memory);
-        }
-        OP_STI => {
-            op_sti(registers, instr, memory);
-        }
-        OP_STR => {
-            op_str(registers, instr, memory);
-        }
-        OP_TRAP => {
-            handle_trap(registers, instr, memory, running);
-        }
+        OP_LEA => op_lea(registers, instr),
+        OP_ST => op_st(registers, instr, memory),
+        OP_STI => op_sti(registers, instr, memory),
+        OP_STR => op_str(registers, instr, memory),
+        OP_TRAP => handle_trap(registers, instr, memory, running),
         _ => {
             println!("Bad opcode: {}", op);
-            flush_stdout();
-            trap_halt(running);
+            flush_stdout()?;
+            trap_halt(running)
         }
     }
 }

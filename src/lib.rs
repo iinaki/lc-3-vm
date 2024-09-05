@@ -5,3 +5,4 @@ pub mod operations;
 pub mod registers;
 pub mod utils;
 pub mod vm;
+pub mod vm_error;

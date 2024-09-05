@@ -1,4 +1,4 @@
-use std::{io::Error, process};
+use std::process;
 
 use termios::Termios;
 
@@ -8,6 +8,7 @@ use crate::{
     operations::handle_operations,
     registers::Registers,
     utils::{flush_stdout, read_image_file},
+    vm_error::VmError,
 };
 
 /// Represents the virtual machine (VM) that emulates the LC-3 computer.
@@ -43,14 +44,14 @@ impl Vm {
     /// If an error occurs while reading an image file, the program will print an error message,
     /// restore the terminal settings, and exit with an error code.
     ///
-    pub fn new_from_images(args: Vec<String>) -> Result<Vm, Error> {
+    pub fn new_from_images(args: Vec<String>) -> Result<Vm, VmError> {
         let mut memory = Memory::new();
         let registers = Registers::new();
         let termios = disable_input_buffering()?;
 
         for path in &args[1..] {
             println!("Loading image file: {}", path);
-            flush_stdout();
+            flush_stdout()?;
             read_image_file(path, &mut memory)?;
         }
 
@@ -75,11 +76,11 @@ impl Vm {
     ///
     /// A Result indicating whether the execution was successful or an error occurred.
     ///
-    pub fn run(&mut self) -> Result<(), Error> {
+    pub fn run(&mut self) -> Result<(), VmError> {
         let mut running = true;
         while running {
             let pc = self.registers.pc;
-            let instr = self.memory.read(pc);
+            let instr = self.memory.read(pc)?;
             self.registers.pc = self.registers.pc.wrapping_add(1);
             let op = instr >> 12;
 
@@ -89,7 +90,7 @@ impl Vm {
                 op,
                 &mut self.memory,
                 &mut running,
-            );
+            )?;
         }
         restore_input_buffering(&self.termios)?;
         process::exit(1);

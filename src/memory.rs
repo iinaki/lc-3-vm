@@ -2,7 +2,7 @@ use std::io::Read;
 
 use crate::{
     constants::{MEMORY_SIZE, MR_KBDR, MR_KBSR},
-    utils::flush_stdout,
+    vm_error::VmError,
 };
 
 /// Represents the memory of the LC-3 virtual machine.
@@ -50,17 +50,14 @@ impl Memory {
     /// `MR_KBSR` and an error occurs while reading from standard input, the function
     /// prints an error message and returns `0`.
     ///
-    pub fn read(&mut self, address: u16) -> u16 {
+    pub fn read(&mut self, address: u16) -> Result<u16, VmError> {
         if address == MR_KBSR {
             let mut buffer = [0; 1];
-            let char = match std::io::stdin().read_exact(&mut buffer) {
-                Ok(_) => buffer[0] as u16,
-                Err(e) => {
-                    println!("Error reading from stdin: {}", e);
-                    flush_stdout();
-                    0
-                }
-            };
+            std::io::stdin()
+                .read_exact(&mut buffer)
+                .map_err(|e| VmError::FailedToReadStdin(e.to_string()))?;
+            let char = buffer[0] as u16;
+
             if char == 0 {
                 self.memory[MR_KBSR as usize] = 0;
             } else {
@@ -68,7 +65,7 @@ impl Memory {
                 self.memory[MR_KBDR as usize] = char;
             }
         }
-        self.memory[address as usize]
+        Ok(self.memory[address as usize])
     }
 
     /// Writes a value to the specified memory address.

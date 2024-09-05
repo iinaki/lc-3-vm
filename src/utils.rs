@@ -1,25 +1,30 @@
 use byteorder::{BigEndian, ReadBytesExt};
+use std::fs::File;
 use std::io::{BufReader, Write};
-use std::{fs::File, io::Error};
 
 use crate::constants::{FL_NEG, FL_POS, FL_ZRO};
 use crate::memory::Memory;
 use crate::registers::Registers;
+use crate::vm_error::VmError;
 
 /// Reads an image file into memory. The image file is expected to start with
 /// a 16-bit address indicating where in memory the data should be loaded, followed by
 /// 16-bit instructions to be stored sequentially in memory.
-pub fn read_image_file(path: &str, memory: &mut Memory) -> Result<(), Error> {
-    let file = File::open(path)?;
+pub fn read_image_file(path: &str, memory: &mut Memory) -> Result<(), VmError> {
+    let file = File::open(path).map_err(|e| VmError::FailedToOpenFile(e.to_string()))?;
     let mut reader = BufReader::new(file);
 
-    let mut address = reader.read_u16::<BigEndian>()?;
+    let mut address = reader
+        .read_u16::<BigEndian>()
+        .map_err(|e| VmError::FailedToReadBigEndian(e.to_string()))?;
     while let Ok(instr) = reader.read_u16::<BigEndian>() {
         memory.write(address, instr);
         address = match address.checked_add(1) {
             Some(a) => a,
             None => {
-                return Err(Error::new(std::io::ErrorKind::Other, "Address overflow"));
+                return Err(VmError::FailedToReadBigEndian(
+                    "Address overflow while reading image file".to_string(),
+                ));
             }
         };
     }
@@ -28,24 +33,22 @@ pub fn read_image_file(path: &str, memory: &mut Memory) -> Result<(), Error> {
 }
 
 /// Flushes the stdout buffer
-pub fn flush_stdout() {
-    match std::io::stdout().flush() {
-        Ok(_) => {}
-        Err(e) => {
-            eprintln!("Error flushing stdout: {}", e);
-        }
-    };
+pub fn flush_stdout() -> Result<(), VmError> {
+    std::io::stdout()
+        .flush()
+        .map_err(|e| VmError::FailedToFlush(e.to_string()))
 }
 
 /// Updates the condition flags in the `Registers` struct.
-pub fn update_flags(registers: &mut Registers, r: u16) {
-    if registers.get(r) == 0 {
+pub fn update_flags(registers: &mut Registers, r: u16) -> Result<(), VmError> {
+    if registers.get(r)? == 0 {
         registers.cond = FL_ZRO;
-    } else if (registers.get(r) >> 15) & 1 == 1 {
+    } else if (registers.get(r)? >> 15) & 1 == 1 {
         registers.cond = FL_NEG;
     } else {
         registers.cond = FL_POS;
     }
+    Ok(())
 }
 
 /// Sign-extends a value based on a given bit count.

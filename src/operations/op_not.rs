@@ -1,4 +1,4 @@
-use crate::{registers::Registers, utils::update_flags};
+use crate::{registers::Registers, utils::update_flags, vm_error::VmError};
 
 /// Executes the NOT operation.
 ///
@@ -11,11 +11,11 @@ use crate::{registers::Registers, utils::update_flags};
 /// - `registers`: A mutable reference to the `Registers` struct.
 /// - `instr`: A 16-bit instruction.
 ///
-pub fn op_not(registers: &mut Registers, instr: u16) {
+pub fn op_not(registers: &mut Registers, instr: u16) -> Result<(), VmError> {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
-    registers.set(r0, !registers.get(r1));
-    update_flags(registers, r0);
+    registers.set(r0, !registers.get(r1)?)?;
+    update_flags(registers, r0)
 }
 
 #[cfg(test)]
@@ -27,46 +27,46 @@ mod tests {
     #[test]
     fn op_not_basic() {
         let mut registers = Registers::new();
-        registers.set(1, 0x0F0F);
+        registers.set(1, 0x0F0F).unwrap();
 
         let instr: u16 = 0b1001_0000_0111_1111; // NOT R0, R1
-        op_not(&mut registers, instr);
+        op_not(&mut registers, instr).unwrap();
 
-        assert_eq!(registers.get(0), 0xF0F0);
+        assert_eq!(registers.get(0).unwrap(), 0xF0F0);
     }
 
     #[test]
     fn op_not_zero() {
         let mut registers = Registers::new();
-        registers.set(1, 0x0000);
+        registers.set(1, 0x0000).unwrap();
 
         let instr: u16 = 0b1001_0000_0111_1111; // NOT R0, R1
-        op_not(&mut registers, instr);
+        op_not(&mut registers, instr).unwrap();
 
-        assert_eq!(registers.get(0), 0xFFFF);
+        assert_eq!(registers.get(0).unwrap(), 0xFFFF);
     }
 
     #[test]
     fn op_not_all_ones() {
         let mut registers = Registers::new();
-        registers.set(1, 0xFFFF);
+        registers.set(1, 0xFFFF).unwrap();
 
         let instr: u16 = 0b1001_0000_0111_1111; // NOT R0, R1
-        op_not(&mut registers, instr);
+        op_not(&mut registers, instr).unwrap();
 
-        assert_eq!(registers.get(0), 0x0000);
+        assert_eq!(registers.get(0).unwrap(), 0x0000);
         assert_eq!(registers.cond, FL_ZRO);
     }
 
     #[test]
     fn op_not_update_flags_negative() {
         let mut registers = Registers::new();
-        registers.set(1, 0x7FFF);
+        registers.set(1, 0x7FFF).unwrap();
 
         let instr: u16 = 0b1001_0000_0111_1111; // NOT R0, R1
-        op_not(&mut registers, instr);
+        op_not(&mut registers, instr).unwrap();
 
-        assert_eq!(registers.get(0), 0x8000);
+        assert_eq!(registers.get(0).unwrap(), 0x8000);
         assert_eq!(registers.cond, FL_NEG);
     }
 }

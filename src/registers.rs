@@ -1,6 +1,6 @@
 use crate::{
     constants::{FL_ZRO, PC_START},
-    utils::flush_stdout,
+    vm_error::VmError,
 };
 
 /// Represents the registers of the LC-3 virtual machine.
@@ -64,8 +64,8 @@ impl Registers {
     /// The value of the specified register. If the identifier is invalid, it prints an
     /// error message and returns `0`.
     ///
-    pub fn get(&self, r: u16) -> u16 {
-        match r {
+    pub fn get(&self, r: u16) -> Result<u16, VmError> {
+        let res = match r {
             0 => self.r0,
             1 => self.r1,
             2 => self.r2,
@@ -77,11 +77,12 @@ impl Registers {
             8 => self.pc,
             9 => self.cond,
             _ => {
-                println!("Invalid registers at get");
-                flush_stdout();
-                0
+                return Err(VmError::InvalidRegister(
+                    "Invalid registers at get".to_string(),
+                ));
             }
-        }
+        };
+        Ok(res)
     }
 
     /// Sets the value of the specified register.
@@ -91,7 +92,7 @@ impl Registers {
     /// * `r` - A `u16` representing the register identifier (0-9).
     /// * `val` - The value to be stored in the register.
     ///
-    pub fn set(&mut self, r: u16, val: u16) {
+    pub fn set(&mut self, r: u16, val: u16) -> Result<(), VmError> {
         match r {
             0 => self.r0 = val,
             1 => self.r1 = val,
@@ -104,9 +105,11 @@ impl Registers {
             8 => self.pc = val,
             9 => self.cond = val,
             _ => {
-                println!("Invalid registers at set");
-                flush_stdout();
+                return Err(VmError::InvalidRegister(
+                    "Invalid registers at set".to_string(),
+                ));
             }
         }
+        Ok(())
     }
 }

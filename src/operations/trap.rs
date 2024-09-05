@@ -5,6 +5,7 @@ use crate::{
     memory::Memory,
     registers::Registers,
     utils::{flush_stdout, update_flags},
+    vm_error::VmError,
 };
 
 /// Handles the `GETC` TRAP instruction.
@@ -17,17 +18,13 @@ use crate::{
 ///
 /// - `registers`: A mutable reference to the `Registers` struct.
 ///
-pub fn trap_getc(registers: &mut Registers) {
+pub fn trap_getc(registers: &mut Registers) -> Result<(), VmError> {
     let mut buffer = [0; 1];
-    registers.r0 = match std::io::stdin().read(&mut buffer) {
-        Ok(_) => buffer[0] as u16,
-        Err(e) => {
-            println!("Error reading from stdin: {}", e);
-            flush_stdout();
-            0
-        }
-    };
-    update_flags(registers, 0);
+    std::io::stdin()
+        .read(&mut buffer)
+        .map_err(|e| VmError::FailedToReadStdin(e.to_string()))?;
+    registers.r0 = buffer[0] as u16;
+    update_flags(registers, 0)
 }
 
 /// Handles the `OUT` TRAP instruction.
@@ -38,10 +35,10 @@ pub fn trap_getc(registers: &mut Registers) {
 ///
 /// - `registers`: A mutable reference to the `Registers` struct.
 ///
-fn trap_out(registers: &mut Registers) {
+fn trap_out(registers: &mut Registers) -> Result<(), VmError> {
     let ch = char::from((registers.r0 & 0xFF) as u8);
     print!("{}", ch);
-    flush_stdout();
+    flush_stdout()
 }
 
 /// Handles the `PUTS` TRAP instruction.
@@ -54,15 +51,15 @@ fn trap_out(registers: &mut Registers) {
 /// - `registers`: A mutable reference to the `Registers` struct.
 /// - `memory`: A mutable reference to the `Memory` struct.
 ///
-fn trap_puts(registers: &mut Registers, memory: &mut Memory) {
+fn trap_puts(registers: &mut Registers, memory: &mut Memory) -> Result<(), VmError> {
     let mut i = registers.r0;
-    let mut c = memory.read(i);
+    let mut c = memory.read(i)?;
     while c != 0 {
         print!("{}", (c as u8) as char);
         i += 1;
-        c = memory.read(i);
+        c = memory.read(i)?;
     }
-    flush_stdout();
+    flush_stdout()
 }
 
 /// Handles the `IN` TRAP instruction.
@@ -74,24 +71,22 @@ fn trap_puts(registers: &mut Registers, memory: &mut Memory) {
 ///
 /// - `registers`: A mutable reference to the `Registers` struct.
 ///
-fn trap_in(registers: &mut Registers) {
+fn trap_in(registers: &mut Registers) -> Result<(), VmError> {
     print!("Enter a character: ");
-    flush_stdout();
+    flush_stdout()?;
 
     let mut buffer = [0; 1];
-    let c = match std::io::stdin().read(&mut buffer) {
-        Ok(_) => buffer[0] as char,
-        Err(e) => {
-            println!("Error reading from stdin: {}", e);
-            flush_stdout();
-            ' '
-        }
-    };
+    std::io::stdin()
+        .read(&mut buffer)
+        .map_err(|e| VmError::FailedToReadStdin(e.to_string()))?;
+
+    let c = buffer[0] as char;
+
     print!("{}", c);
-    flush_stdout();
+    flush_stdout()?;
     registers.r0 = c as u16;
 
-    update_flags(registers, 0);
+    update_flags(registers, 0)
 }
 
 /// Handles the `PUTSP` TRAP instruction.
@@ -104,9 +99,9 @@ fn trap_in(registers: &mut Registers) {
 /// - `registers`: A mutable reference to the `Registers` struct.
 /// - `memory`: A mutable reference to the `Memory` struct.
 ///
-fn trap_putsp(registers: &mut Registers, memory: &mut Memory) {
+fn trap_putsp(registers: &mut Registers, memory: &mut Memory) -> Result<(), VmError> {
     let mut i = registers.r0;
-    let mut char = memory.read(i);
+    let mut char = memory.read(i)?;
     while char != 0 {
         let char1 = (char & 0xFF) as u8 as char;
         if char1 == '\0' {
@@ -119,10 +114,10 @@ fn trap_putsp(registers: &mut Registers, memory: &mut Memory) {
             print!("{}", char2 as u8 as char);
         }
         i = i.wrapping_add(1);
-        char = memory.read(i);
+        char = memory.read(i)?;
     }
 
-    flush_stdout();
+    flush_stdout()
 }
 
 /// Handles the `HALT` TRAP instruction.
@@ -134,10 +129,10 @@ fn trap_putsp(registers: &mut Registers, memory: &mut Memory) {
 /// - `running`: A mutable reference to a boolean flag that indicates if the
 ///   program is running.
 ///
-pub fn trap_halt(running: &mut bool) {
+pub fn trap_halt(running: &mut bool) -> Result<(), VmError> {
     println!("HALT");
-    flush_stdout();
     *running = false;
+    flush_stdout()
 }
 
 /// Handles the correct trap routine based on the instruction.
@@ -150,29 +145,21 @@ pub fn trap_halt(running: &mut bool) {
 /// - `running`: A mutable reference to a boolean flag that indicates if the
 ///   program is running.
 ///
-pub fn handle_trap(registers: &mut Registers, instr: u16, memory: &mut Memory, running: &mut bool) {
+pub fn handle_trap(
+    registers: &mut Registers,
+    instr: u16,
+    memory: &mut Memory,
+    running: &mut bool,
+) -> Result<(), VmError> {
     registers.r7 = registers.pc;
-
     let trap_instr = instr & 0xFF;
     match trap_instr {
-        TRAP_GETC => {
-            trap_getc(registers);
-        }
-        TRAP_OUT => {
-            trap_out(registers);
-        }
-        TRAP_PUTS => {
-            trap_puts(registers, memory);
-        }
-        TRAP_IN => {
-            trap_in(registers);
-        }
-        TRAP_PUTSP => {
-            trap_putsp(registers, memory);
-        }
-        _ => {
-            trap_halt(running);
-        }
+        TRAP_GETC => trap_getc(registers),
+        TRAP_OUT => trap_out(registers),
+        TRAP_PUTS => trap_puts(registers, memory),
+        TRAP_IN => trap_in(registers),
+        TRAP_PUTSP => trap_putsp(registers, memory),
+        _ => trap_halt(running),
     }
 }
 
@@ -191,7 +178,7 @@ mod tests {
                 0
             }
         };
-        update_flags(registers, 0);
+        update_flags(registers, 0).unwrap();
     }
 
     #[test]
@@ -218,7 +205,7 @@ mod tests {
         let mut registers = Registers::new();
         registers.r0 = 'A' as u16;
 
-        trap_out(&mut registers);
+        trap_out(&mut registers).unwrap();
         // prints 'A' in stdout
     }
 
@@ -236,7 +223,7 @@ mod tests {
 
         registers.r0 = 0;
 
-        trap_puts(&mut registers, &mut memory);
+        trap_puts(&mut registers, &mut memory).unwrap();
         // prints 'Hello' in stdout
     }
 
@@ -252,10 +239,10 @@ mod tests {
             }
         };
         print!("{}", c);
-        flush_stdout();
-        registers.set(0, c as u16);
+        flush_stdout().unwrap();
+        registers.set(0, c as u16).unwrap();
 
-        update_flags(registers, 0);
+        update_flags(registers, 0).unwrap();
     }
 
     // TRAP IN
@@ -280,7 +267,7 @@ mod tests {
 
         registers.r0 = 0x3000;
 
-        trap_putsp(&mut registers, &mut memory);
+        trap_putsp(&mut registers, &mut memory).unwrap();
         // output: "AB"
     }
 }
