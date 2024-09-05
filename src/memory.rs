@@ -48,7 +48,7 @@ impl Memory {
     ///
     /// The value stored at the specified memory address. If the address corresponds to
     /// `MR_KBSR` and an error occurs while reading from standard input, the function
-    /// prints an error message and returns `0`.
+    /// will return a `VmError`.
     ///
     pub fn read(&mut self, address: u16) -> Result<u16, VmError> {
         if address == MR_KBSR {

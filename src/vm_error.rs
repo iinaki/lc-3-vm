@@ -1,3 +1,4 @@
+/// Custom error for the VM
 #[derive(Debug)]
 pub enum VmError {
     BadArgsLength(String),

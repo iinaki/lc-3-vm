@@ -11,22 +11,7 @@ fn main() -> Result<(), VmError> {
         ));
     }
 
-    // let mut vm = match Vm::new_from_images(args) {
-    //     Ok(vm) => vm,
-    //     Err(e) => {
-    //         eprintln!("Error initializing VM: {}", e);
-    //         process::exit(2);
-    //     }
-    // };
     let mut vm = Vm::new_from_images(args)?;
-
-    // match vm.run() {
-    //     Ok(_) => {}
-    //     Err(e) => {
-    //         eprintln!("Error running VM: {}", e);
-    //         process::exit(2);
-    //     }
-    // }
 
     vm.run()
 }

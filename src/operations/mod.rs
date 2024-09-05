@@ -51,6 +51,10 @@ use crate::operations::{
 /// - `memory`: A mutable reference to the `Memory` struct.
 /// - `running`: Boolean flag that indicates if the program is running.
 ///
+/// # Returns
+/// 
+/// Returns `Ok(())` if the handling was successful, otherwise returns a `VmError`.
+/// 
 pub fn handle_operations(
     registers: &mut Registers,
     instr: u16,

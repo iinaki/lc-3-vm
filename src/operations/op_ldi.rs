@@ -17,6 +17,10 @@ use crate::{
 /// - `registers`: A mutable reference to the `Registers` struct.
 /// - `instr`: A 16-bit instruction.
 ///
+/// # Returns
+/// 
+/// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
+/// 
 pub fn op_ldi(registers: &mut Registers, instr: u16, memory: &mut Memory) -> Result<(), VmError> {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);

@@ -37,13 +37,8 @@ impl Vm {
     ///
     /// # Returns
     ///
-    /// A fully initialized `Vm` instance ready to run the loaded program.
-    ///
-    /// # Errors
-    ///
-    /// If an error occurs while reading an image file, the program will print an error message,
-    /// restore the terminal settings, and exit with an error code.
-    ///
+    /// A Result with a fully initialized `Vm` instance ready to run the loaded program or an error if something went wrong.
+    /// 
     pub fn new_from_images(args: Vec<String>) -> Result<Vm, VmError> {
         let mut memory = Memory::new();
         let registers = Registers::new();

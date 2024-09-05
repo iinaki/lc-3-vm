@@ -15,6 +15,10 @@ use crate::{
 /// - `registers`: A mutable reference to the `Registers` struct.
 /// - `instr`: A 16-bit instruction.
 ///
+/// # Returns
+/// 
+/// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
+/// 
 pub fn op_add(registers: &mut Registers, instr: u16) -> Result<(), VmError> {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;

@@ -9,13 +9,15 @@ use crate::{utils::flush_stdout, vm_error::VmError};
 ///
 /// Returns a Result with the current `Termios` struct containing the terminal's settings
 /// before modification, which can be used later to restore the original settings, if everything went well.
-/// Otherwise, an `Error` is returned.
+/// Otherwise, an `VmError` is returned.
 ///
 pub fn disable_input_buffering() -> Result<Termios, VmError> {
     let mut tio = Termios::from_fd(STDIN_FILENO)
         .map_err(|e| VmError::FailedToCreateTermios(e.to_string()))?;
+
     println!("Disabling input buffering");
     flush_stdout()?;
+
     tio.c_lflag &= !(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &tio)
         .map_err(|e| VmError::FailedToSetAttrTermios(e.to_string()))?;
@@ -35,7 +37,7 @@ pub fn disable_input_buffering() -> Result<Termios, VmError> {
 ///
 /// # Returns
 ///
-/// Returns `Ok(())` if the terminal settings were successfully restored. And an Error otherwise.
+/// Returns `Ok(())` if the terminal settings were successfully restored. And an `VmError` otherwise.
 ///
 pub fn restore_input_buffering(termios: &Termios) -> Result<(), VmError> {
     println!("Restoring input buffering");
