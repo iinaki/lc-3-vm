@@ -45,9 +45,10 @@ impl OpAdd for Vm {
 
 #[cfg(test)]
 mod tests {
+    use termios::Termios;
+
     use crate::{
         constants::{FL_NEG, FL_POS, FL_ZRO},
-        input_buffering::disable_input_buffering,
         memory::Memory,
         operations::op_add::OpAdd,
         registers::Registers,
@@ -58,7 +59,7 @@ mod tests {
         Vm {
             registers: Registers::new(),
             memory: Memory::new(),
-            termios: disable_input_buffering().unwrap(),
+            termios: Termios::from_fd(0).unwrap(),
         }
     }
 
