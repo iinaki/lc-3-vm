@@ -33,10 +33,7 @@ impl OpLdr for Vm {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        constants::FL_ZRO, input_buffering::disable_input_buffering, memory::Memory,
-        registers::Registers,
-    };
+    use crate::{constants::FL_ZRO, memory::Memory, registers::Registers};
 
     use super::*;
 
@@ -44,7 +41,6 @@ mod tests {
         Vm {
             registers: Registers::new(),
             memory: Memory::new(),
-            termios: disable_input_buffering().unwrap(),
         }
     }
 

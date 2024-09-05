@@ -1,7 +1,5 @@
 use std::process;
 
-use termios::Termios;
-
 use crate::{
     constants::{
         OP_ADD, OP_AND, OP_BR, OP_JMP, OP_JSR, OP_LD, OP_LDI, OP_LDR, OP_LEA, OP_NOT, OP_ST,
@@ -29,7 +27,6 @@ use crate::{
 pub struct Vm {
     pub registers: Registers,
     pub memory: Memory,
-    pub termios: Termios,
 }
 
 impl Vm {
@@ -50,7 +47,6 @@ impl Vm {
     pub fn new_from_images(args: Vec<String>) -> Result<Vm, VmError> {
         let mut memory = Memory::new();
         let registers = Registers::new();
-        let termios = disable_input_buffering()?;
 
         for path in &args[1..] {
             println!("Loading image file: {}", path);
@@ -58,11 +54,7 @@ impl Vm {
             read_image_file(path, &mut memory)?;
         }
 
-        Ok(Vm {
-            registers,
-            memory,
-            termios,
-        })
+        Ok(Vm { registers, memory })
     }
 
     /// Runs the loaded program.
@@ -80,6 +72,7 @@ impl Vm {
     /// A Result indicating whether the execution was successful or an error occurred.
     ///
     pub fn run(&mut self) -> Result<(), VmError> {
+        let termios = disable_input_buffering()?;
         let mut running = true;
         while running {
             let pc = self.registers.pc;
@@ -89,7 +82,7 @@ impl Vm {
 
             self.handle_operations(instr, op, &mut running)?;
         }
-        restore_input_buffering(&self.termios)?;
+        restore_input_buffering(&termios)?;
         process::exit(1);
     }
 

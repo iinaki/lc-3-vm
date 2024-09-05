@@ -43,7 +43,6 @@ impl OpAnd for Vm {
 mod tests {
     use crate::{
         constants::{FL_NEG, FL_POS, FL_ZRO},
-        input_buffering::disable_input_buffering,
         memory::Memory,
         operations::op_and::OpAnd,
         registers::Registers,
@@ -54,7 +53,6 @@ mod tests {
         Vm {
             registers: Registers::new(),
             memory: Memory::new(),
-            termios: disable_input_buffering().unwrap(),
         }
     }
 

@@ -28,15 +28,13 @@ impl OpBr for Vm {
 #[cfg(test)]
 mod tests {
     use crate::{
-        constants::FL_POS, input_buffering::disable_input_buffering, memory::Memory,
-        operations::op_br::OpBr, registers::Registers, vm::Vm,
+        constants::FL_POS, memory::Memory, operations::op_br::OpBr, registers::Registers, vm::Vm,
     };
 
     fn create_vm() -> Vm {
         Vm {
             registers: Registers::new(),
             memory: Memory::new(),
-            termios: disable_input_buffering().unwrap(),
         }
     }
 

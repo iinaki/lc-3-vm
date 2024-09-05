@@ -33,9 +33,7 @@ impl OpStr for Vm {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        input_buffering::disable_input_buffering, memory::Memory, registers::Registers, vm::Vm,
-    };
+    use crate::{memory::Memory, registers::Registers, vm::Vm};
 
     use super::*;
 
@@ -43,7 +41,6 @@ mod tests {
         Vm {
             registers: Registers::new(),
             memory: Memory::new(),
-            termios: disable_input_buffering().unwrap(),
         }
     }
 

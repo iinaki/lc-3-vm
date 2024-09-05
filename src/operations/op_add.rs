@@ -45,7 +45,6 @@ impl OpAdd for Vm {
 
 #[cfg(test)]
 mod tests {
-    use termios::Termios;
 
     use crate::{
         constants::{FL_NEG, FL_POS, FL_ZRO},
@@ -59,7 +58,6 @@ mod tests {
         Vm {
             registers: Registers::new(),
             memory: Memory::new(),
-            termios: Termios::from_fd(0).unwrap(),
         }
     }
 

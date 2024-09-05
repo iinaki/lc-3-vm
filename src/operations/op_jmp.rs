@@ -27,16 +27,12 @@ impl OpJmp for Vm {
 }
 #[cfg(test)]
 mod tests {
-    use crate::{
-        input_buffering::disable_input_buffering, memory::Memory, operations::op_jmp::OpJmp,
-        registers::Registers, vm::Vm,
-    };
+    use crate::{memory::Memory, operations::op_jmp::OpJmp, registers::Registers, vm::Vm};
 
     fn create_vm() -> Vm {
         Vm {
             registers: Registers::new(),
             memory: Memory::new(),
-            termios: disable_input_buffering().unwrap(),
         }
     }
 

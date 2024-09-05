@@ -30,15 +30,13 @@ impl OpLd for Vm {
 #[cfg(test)]
 mod tests {
     use crate::{
-        constants::FL_ZRO, input_buffering::disable_input_buffering, memory::Memory,
-        operations::op_ld::OpLd, registers::Registers, vm::Vm,
+        constants::FL_ZRO, memory::Memory, operations::op_ld::OpLd, registers::Registers, vm::Vm,
     };
 
     fn create_vm() -> Vm {
         Vm {
             registers: Registers::new(),
             memory: Memory::new(),
-            termios: disable_input_buffering().unwrap(),
         }
     }
 

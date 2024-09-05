@@ -33,7 +33,6 @@ mod tests {
 
     use crate::{
         constants::{FL_NEG, FL_ZRO},
-        input_buffering::disable_input_buffering,
         memory::Memory,
         registers::Registers,
         vm::Vm,
@@ -45,7 +44,6 @@ mod tests {
         Vm {
             registers: Registers::new(),
             memory: Memory::new(),
-            termios: disable_input_buffering().unwrap(),
         }
     }
 
