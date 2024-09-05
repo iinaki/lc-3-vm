@@ -12,9 +12,9 @@ use crate::{registers::Registers, utils::sign_extend, vm_error::VmError};
 /// - `instr`: A 16-bit instruction.
 ///
 /// # Returns
-/// 
+///
 /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
-/// 
+///
 pub fn op_jsr(registers: &mut Registers, instr: u16) -> Result<(), VmError> {
     let long_flag = (instr >> 11) & 1;
     registers.r7 = registers.pc;

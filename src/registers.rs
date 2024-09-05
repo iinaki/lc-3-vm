@@ -92,9 +92,9 @@ impl Registers {
     /// * `val` - The value to be stored in the register.
     ///
     /// # Returns
-    /// 
+    ///
     /// An Ok if the operation is successful. If the identifier is invalid, it returns a VmError.
-    /// 
+    ///
     pub fn set(&mut self, r: u16, val: u16) -> Result<(), VmError> {
         match r {
             0 => self.r0 = val,

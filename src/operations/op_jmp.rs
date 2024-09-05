@@ -11,9 +11,9 @@ use crate::{registers::Registers, vm_error::VmError};
 /// - `instr`: A 16-bit instruction.
 ///
 /// # Returns
-/// 
+///
 /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
-/// 
+///
 pub fn op_jmp(registers: &mut Registers, instr: u16) -> Result<(), VmError> {
     let r1 = (instr >> 6) & 0x7;
     registers.pc = registers.get(r1)?;

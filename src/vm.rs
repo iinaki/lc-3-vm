@@ -5,7 +5,7 @@ use termios::Termios;
 use crate::{
     input_buffering::{disable_input_buffering, restore_input_buffering},
     memory::Memory,
-    operations::handle_operations,
+    operations::handle_operations::handle_operations,
     registers::Registers,
     utils::{flush_stdout, read_image_file},
     vm_error::VmError,
@@ -38,7 +38,7 @@ impl Vm {
     /// # Returns
     ///
     /// A Result with a fully initialized `Vm` instance ready to run the loaded program or an error if something went wrong.
-    /// 
+    ///
     pub fn new_from_images(args: Vec<String>) -> Result<Vm, VmError> {
         let mut memory = Memory::new();
         let registers = Registers::new();

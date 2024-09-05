@@ -19,9 +19,9 @@ use crate::{
 /// - `registers`: A mutable reference to the `Registers` struct.
 ///
 /// # Returns
-/// 
+///
 /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
-/// 
+///
 pub fn trap_getc(registers: &mut Registers) -> Result<(), VmError> {
     let mut buffer = [0; 1];
     std::io::stdin()
@@ -40,9 +40,9 @@ pub fn trap_getc(registers: &mut Registers) -> Result<(), VmError> {
 /// - `registers`: A mutable reference to the `Registers` struct.
 ///
 /// # Returns
-/// 
+///
 /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
-/// 
+///
 fn trap_out(registers: &mut Registers) -> Result<(), VmError> {
     let ch = char::from((registers.r0 & 0xFF) as u8);
     print!("{}", ch);
@@ -60,9 +60,9 @@ fn trap_out(registers: &mut Registers) -> Result<(), VmError> {
 /// - `memory`: A mutable reference to the `Memory` struct.
 ///
 /// # Returns
-/// 
+///
 /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
-/// 
+///
 fn trap_puts(registers: &mut Registers, memory: &mut Memory) -> Result<(), VmError> {
     let mut i = registers.r0;
     let mut c = memory.read(i)?;
@@ -84,9 +84,9 @@ fn trap_puts(registers: &mut Registers, memory: &mut Memory) -> Result<(), VmErr
 /// - `registers`: A mutable reference to the `Registers` struct.
 ///
 /// # Returns
-/// 
+///
 /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
-/// 
+///
 fn trap_in(registers: &mut Registers) -> Result<(), VmError> {
     print!("Enter a character: ");
     flush_stdout()?;
@@ -116,9 +116,9 @@ fn trap_in(registers: &mut Registers) -> Result<(), VmError> {
 /// - `memory`: A mutable reference to the `Memory` struct.
 ///
 /// # Returns
-/// 
+///
 /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
-/// 
+///
 fn trap_putsp(registers: &mut Registers, memory: &mut Memory) -> Result<(), VmError> {
     let mut i = registers.r0;
     let mut char = memory.read(i)?;
@@ -150,9 +150,9 @@ fn trap_putsp(registers: &mut Registers, memory: &mut Memory) -> Result<(), VmEr
 ///   program is running.
 ///
 /// # Returns
-/// 
+///
 /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
-/// 
+///
 pub fn trap_halt(running: &mut bool) -> Result<(), VmError> {
     println!("HALT");
     *running = false;
@@ -170,9 +170,9 @@ pub fn trap_halt(running: &mut bool) -> Result<(), VmError> {
 ///   program is running.
 ///
 /// # Returns
-/// 
+///
 /// Returns `Ok(())` if the handling was successful, otherwise returns a `VmError`.
-/// 
+///
 pub fn handle_trap(
     registers: &mut Registers,
     instr: u16,
