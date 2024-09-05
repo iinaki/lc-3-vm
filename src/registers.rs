@@ -1,5 +1,5 @@
 use crate::{
-    constants::{FL_ZRO, PC_START},
+    constants::{FL_NEG, FL_POS, FL_ZRO, PC_START},
     vm_error::VmError,
 };
 
@@ -112,6 +112,23 @@ impl Registers {
                     "Invalid registers at set".to_string(),
                 ));
             }
+        }
+        Ok(())
+    }
+
+    /// Updates the condition flags in the `Registers` struct.
+    ///
+    /// # Returns
+    ///
+    /// An `Ok` result if the operation was successful, otherwise a `VmError`.
+    ///
+    pub fn update_flags(&mut self, r: u16) -> Result<(), VmError> {
+        if self.get(r)? == 0 {
+            self.cond = FL_ZRO;
+        } else if (self.get(r)? >> 15) & 1 == 1 {
+            self.cond = FL_NEG;
+        } else {
+            self.cond = FL_POS;
         }
         Ok(())
     }

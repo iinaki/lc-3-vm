@@ -1,4 +1,4 @@
-use crate::{registers::Registers, utils::update_flags, vm_error::VmError};
+use crate::{registers::Registers, vm_error::VmError};
 
 /// Executes the NOT operation.
 ///
@@ -19,7 +19,7 @@ pub fn op_not(registers: &mut Registers, instr: u16) -> Result<(), VmError> {
     let r0 = (instr >> 9) & 0x7;
     let r1 = (instr >> 6) & 0x7;
     registers.set(r0, !registers.get(r1)?)?;
-    update_flags(registers, r0)
+    registers.update_flags(r0)
 }
 
 #[cfg(test)]

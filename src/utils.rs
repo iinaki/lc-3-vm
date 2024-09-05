@@ -2,9 +2,7 @@ use byteorder::{BigEndian, ReadBytesExt};
 use std::fs::File;
 use std::io::{BufReader, Write};
 
-use crate::constants::{FL_NEG, FL_POS, FL_ZRO};
 use crate::memory::Memory;
-use crate::registers::Registers;
 use crate::vm_error::VmError;
 
 /// Reads an image file into memory. The image file is expected to start with
@@ -46,23 +44,6 @@ pub fn flush_stdout() -> Result<(), VmError> {
     std::io::stdout()
         .flush()
         .map_err(|e| VmError::FailedToFlush(e.to_string()))
-}
-
-/// Updates the condition flags in the `Registers` struct.
-///
-/// # Returns
-///
-/// An `Ok` result if the operation was successful, otherwise a `VmError`.
-///
-pub fn update_flags(registers: &mut Registers, r: u16) -> Result<(), VmError> {
-    if registers.get(r)? == 0 {
-        registers.cond = FL_ZRO;
-    } else if (registers.get(r)? >> 15) & 1 == 1 {
-        registers.cond = FL_NEG;
-    } else {
-        registers.cond = FL_POS;
-    }
-    Ok(())
 }
 
 /// Sign-extends a value based on a given bit count.

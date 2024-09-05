@@ -1,8 +1,4 @@
-use crate::{
-    registers::Registers,
-    utils::{sign_extend, update_flags},
-    vm_error::VmError,
-};
+use crate::{registers::Registers, utils::sign_extend, vm_error::VmError};
 
 /// Executes the LEA operation.
 ///
@@ -23,7 +19,7 @@ pub fn op_lea(registers: &mut Registers, instr: u16) -> Result<(), VmError> {
     let r0 = (instr >> 9) & 0x7;
     let pc_offset = sign_extend(instr & 0x1FF, 9);
     registers.set(r0, (registers.pc as i16 + pc_offset) as u16)?;
-    update_flags(registers, r0)
+    registers.update_flags(r0)
 }
 
 #[cfg(test)]

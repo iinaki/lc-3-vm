@@ -1,8 +1,4 @@
-use crate::{
-    registers::Registers,
-    utils::{sign_extend, update_flags},
-    vm_error::VmError,
-};
+use crate::{registers::Registers, utils::sign_extend, vm_error::VmError};
 
 /// Performs a bitwise AND operation between two operands.
 ///
@@ -32,7 +28,7 @@ pub fn op_and(registers: &mut Registers, instr: u16) -> Result<(), VmError> {
         let r2 = instr & 0x7;
         registers.set(r0, registers.get(r1)? & registers.get(r2)?)?;
     }
-    update_flags(registers, r0)
+    registers.update_flags(r0)
 }
 
 #[cfg(test)]

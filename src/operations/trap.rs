@@ -4,7 +4,7 @@ use crate::{
     constants::{TRAP_GETC, TRAP_IN, TRAP_OUT, TRAP_PUTS, TRAP_PUTSP},
     memory::Memory,
     registers::Registers,
-    utils::{flush_stdout, update_flags},
+    utils::flush_stdout,
     vm_error::VmError,
 };
 
@@ -28,7 +28,7 @@ pub fn trap_getc(registers: &mut Registers) -> Result<(), VmError> {
         .read(&mut buffer)
         .map_err(|e| VmError::FailedToReadStdin(e.to_string()))?;
     registers.r0 = buffer[0] as u16;
-    update_flags(registers, 0)
+    registers.update_flags(0)
 }
 
 /// Handles the `OUT` TRAP instruction.
@@ -102,7 +102,7 @@ fn trap_in(registers: &mut Registers) -> Result<(), VmError> {
     flush_stdout()?;
     registers.r0 = c as u16;
 
-    update_flags(registers, 0)
+    registers.update_flags(0)
 }
 
 /// Handles the `PUTSP` TRAP instruction.
@@ -206,7 +206,7 @@ mod tests {
                 0
             }
         };
-        update_flags(registers, 0).unwrap();
+        registers.update_flags(0).unwrap();
     }
 
     #[test]
@@ -270,7 +270,7 @@ mod tests {
         flush_stdout().unwrap();
         registers.set(0, c as u16).unwrap();
 
-        update_flags(registers, 0).unwrap();
+        registers.update_flags(0).unwrap();
     }
 
     // TRAP IN

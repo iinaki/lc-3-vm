@@ -1,9 +1,4 @@
-use crate::{
-    memory::Memory,
-    registers::Registers,
-    utils::{sign_extend, update_flags},
-    vm_error::VmError,
-};
+use crate::{memory::Memory, registers::Registers, utils::sign_extend, vm_error::VmError};
 
 /// Executes the LDI operation.
 ///
@@ -27,7 +22,7 @@ pub fn op_ldi(registers: &mut Registers, instr: u16, memory: &mut Memory) -> Res
     let addr = (registers.pc as i16 + pc_offset) as u16;
     let indirect_addr = memory.read(addr)?;
     registers.set(r0, memory.read(indirect_addr)?)?;
-    update_flags(registers, r0)
+    registers.update_flags(r0)
 }
 
 #[cfg(test)]

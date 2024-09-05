@@ -1,9 +1,4 @@
-use crate::{
-    memory::Memory,
-    registers::Registers,
-    utils::{sign_extend, update_flags},
-    vm_error::VmError,
-};
+use crate::{memory::Memory, registers::Registers, utils::sign_extend, vm_error::VmError};
 
 /// Executes the LDR operation.
 ///
@@ -27,7 +22,7 @@ pub fn op_ldr(registers: &mut Registers, instr: u16, memory: &mut Memory) -> Res
     let offset = sign_extend(instr & 0x3F, 6);
     let addr = (registers.get(r1)? as i16 + offset) as u16;
     registers.set(r0, memory.read(addr)?)?;
-    update_flags(registers, r0)
+    registers.update_flags(r0)
 }
 
 #[cfg(test)]

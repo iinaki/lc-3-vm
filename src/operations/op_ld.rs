@@ -1,9 +1,4 @@
-use crate::{
-    memory::Memory,
-    registers::Registers,
-    utils::{sign_extend, update_flags},
-    vm_error::VmError,
-};
+use crate::{memory::Memory, registers::Registers, utils::sign_extend, vm_error::VmError};
 
 /// Executes the LD operation.
 ///
@@ -24,7 +19,7 @@ pub fn op_ld(registers: &mut Registers, instr: u16, memory: &mut Memory) -> Resu
     let pc_offset = sign_extend(instr & 0x1FF, 9);
     let address = (registers.pc as i16 + pc_offset) as u16;
     registers.set(r0, memory.read(address)?)?;
-    update_flags(registers, r0)
+    registers.update_flags(r0)
 }
 
 #[cfg(test)]

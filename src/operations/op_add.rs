@@ -1,8 +1,4 @@
-use crate::{
-    registers::Registers,
-    utils::{sign_extend, update_flags},
-    vm_error::VmError,
-};
+use crate::{registers::Registers, utils::sign_extend, vm_error::VmError};
 
 /// Executes the ADD operation.
 ///
@@ -32,7 +28,7 @@ pub fn op_add(registers: &mut Registers, instr: u16) -> Result<(), VmError> {
         registers.set(r0, registers.get(r1)?.wrapping_add(registers.get(r2)?))?;
     }
 
-    update_flags(registers, r0)
+    registers.update_flags(r0)
 }
 
 #[cfg(test)]
