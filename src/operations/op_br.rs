@@ -13,7 +13,6 @@ impl OpBr for Vm {
     ///
     /// # Parameters
     ///
-    /// - `registers`: A mutable reference to the `Registers` struct.
     /// - `instr`: A 16-bit instruction.
     ///
     fn op_br(&mut self, instr: u16) {

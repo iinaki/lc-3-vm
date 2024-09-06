@@ -90,10 +90,8 @@ impl Vm {
     ///
     /// # Parameters
     ///
-    /// - `registers`: A mutable reference to the `Registers` struct.
     /// - `instr`: The instruction to be executed.
     /// - `op`: The operation code extracted from the instruction.
-    /// - `memory`: A mutable reference to the `Memory` struct.
     /// - `running`: Boolean flag that indicates if the program is running.
     ///
     /// # Returns

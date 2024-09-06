@@ -12,7 +12,6 @@ impl OpStr for Vm {
     ///
     /// # Parameters
     ///
-    /// - `registers`: A mutable reference to the `Registers` struct.
     /// - `instr`: A 16-bit instruction.
     ///
     /// # Returns

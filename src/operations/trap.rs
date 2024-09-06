@@ -24,10 +24,6 @@ impl Trap for Vm {
     /// and stores it in the `R0` register. The condition flags are updated
     /// based on the value of `R0`.
     ///
-    /// # Parameters
-    ///
-    /// - `registers`: A mutable reference to the `Registers` struct.
-    ///
     /// # Returns
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
@@ -45,10 +41,6 @@ impl Trap for Vm {
     ///
     /// This function outputs a single character stored in the `R0` register to the console.
     ///
-    /// # Parameters
-    ///
-    /// - `registers`: A mutable reference to the `Registers` struct.
-    ///
     /// # Returns
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
@@ -63,11 +55,6 @@ impl Trap for Vm {
     ///
     /// This function outputs a null-terminated string stored in memory,
     /// starting from the address in the `R0` register, to the console.
-    ///
-    /// # Parameters
-    ///
-    /// - `registers`: A mutable reference to the `Registers` struct.
-    /// - `memory`: A mutable reference to the `Memory` struct.
     ///
     /// # Returns
     ///
@@ -88,10 +75,6 @@ impl Trap for Vm {
     ///
     /// This function prompts the user to enter a character and stores it in the `R0` register.
     /// The entered character is also echoed to the console.
-    ///
-    /// # Parameters
-    ///
-    /// - `registers`: A mutable reference to the `Registers` struct.
     ///
     /// # Returns
     ///
@@ -119,11 +102,6 @@ impl Trap for Vm {
     ///
     /// This function outputs a string stored in memory, starting from the address in the `R0` register,
     /// to the console. Each memory location contains two characters packed into one 16-bit word.
-    ///
-    /// # Parameters
-    ///
-    /// - `registers`: A mutable reference to the `Registers` struct.
-    /// - `memory`: A mutable reference to the `Memory` struct.
     ///
     /// # Returns
     ///
@@ -173,9 +151,7 @@ impl Trap for Vm {
     ///
     /// # Parameters
     ///
-    /// - `registers`: A mutable reference to the `Registers` struct.
     /// - `instr`: The 16-bit instruction containing the TRAP opcode.
-    /// - `memory`: A mutable reference to the `Memory` struct.
     /// - `running`: A mutable reference to a boolean flag that indicates if the
     ///   program is running.
     ///
