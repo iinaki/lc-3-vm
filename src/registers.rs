@@ -1,6 +1,6 @@
 use crate::{
-    constants::{FL_ZRO, PC_START},
-    utils::flush_stdout,
+    constants::{FL_NEG, FL_POS, FL_ZRO, PC_START},
+    vm_error::VmError,
 };
 
 /// Represents the registers of the LC-3 virtual machine.
@@ -61,11 +61,10 @@ impl Registers {
     ///
     /// # Returns
     ///
-    /// The value of the specified register. If the identifier is invalid, it prints an
-    /// error message and returns `0`.
+    /// The value of the specified register. If the identifier is invalid, it returns a VmError.
     ///
-    pub fn get(&self, r: u16) -> u16 {
-        match r {
+    pub fn get(&self, r: u16) -> Result<u16, VmError> {
+        let res = match r {
             0 => self.r0,
             1 => self.r1,
             2 => self.r2,
@@ -77,11 +76,12 @@ impl Registers {
             8 => self.pc,
             9 => self.cond,
             _ => {
-                println!("Invalid registers at get");
-                flush_stdout();
-                0
+                return Err(VmError::InvalidRegister(
+                    "Invalid registers at get".to_string(),
+                ));
             }
-        }
+        };
+        Ok(res)
     }
 
     /// Sets the value of the specified register.
@@ -91,7 +91,11 @@ impl Registers {
     /// * `r` - A `u16` representing the register identifier (0-9).
     /// * `val` - The value to be stored in the register.
     ///
-    pub fn set(&mut self, r: u16, val: u16) {
+    /// # Returns
+    ///
+    /// An Ok if the operation is successful. If the identifier is invalid, it returns a VmError.
+    ///
+    pub fn set(&mut self, r: u16, val: u16) -> Result<(), VmError> {
         match r {
             0 => self.r0 = val,
             1 => self.r1 = val,
@@ -104,9 +108,31 @@ impl Registers {
             8 => self.pc = val,
             9 => self.cond = val,
             _ => {
-                println!("Invalid registers at set");
-                flush_stdout();
+                return Err(VmError::InvalidRegister(
+                    "Invalid registers at set".to_string(),
+                ));
             }
         }
+        Ok(())
+    }
+
+    /// Updates the condition flags in the `Registers` struct.
+    ///
+    /// # Returns
+    ///
+    /// An `Ok` result if the operation was successful, otherwise a `VmError` if it fails to get de value of `r`.
+    ///
+    pub fn update_flags(&mut self, r: u16) -> Result<(), VmError> {
+        let r_value = self.get(r)?;
+
+        if r_value == 0 {
+            self.cond = FL_ZRO;
+        } else if (r_value >> 15) & 1 == 1 {
+            self.cond = FL_NEG;
+        } else {
+            self.cond = FL_POS;
+        }
+
+        Ok(())
     }
 }

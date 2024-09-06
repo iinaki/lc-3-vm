@@ -1,104 +1,107 @@
-use crate::{
-    memory::Memory,
-    registers::Registers,
-    utils::{sign_extend, update_flags},
-};
+use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-/// Executes the LDR operation.
-///
-/// Performs a load operation using a base register and an offset. The final
-/// address is computed by adding a sign-extended offset to the value in the base register.
-/// The value at this computed address is loaded into the destination register. The condition
-/// flags are updated based on the loaded value.
-///
-/// # Parameters
-///
-/// - `registers`: A mutable reference to the `Registers` struct.
-/// - `instr`: A 16-bit instruction.
-///
-pub fn op_ldr(registers: &mut Registers, instr: u16, memory: &mut Memory) {
-    let r0 = (instr >> 9) & 0x7;
-    let r1 = (instr >> 6) & 0x7;
-    let offset = sign_extend(instr & 0x3F, 6);
-    let addr = (registers.get(r1) as i16 + offset) as u16;
-    registers.set(r0, memory.read(addr));
-    update_flags(registers, r0);
+impl Vm {
+    /// Executes the LDR operation.
+    ///
+    /// Performs a load operation using a base register and an offset. The final
+    /// address is computed by adding a sign-extended offset to the value in the base register.
+    /// The value at this computed address is loaded into the destination register. The condition
+    /// flags are updated based on the loaded value.
+    ///
+    /// # Parameters
+    ///
+    /// - `instr`: A 16-bit instruction.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
+    ///
+    pub fn op_ldr(&mut self, instr: u16) -> Result<(), VmError> {
+        let r0 = (instr >> 9) & 0x7;
+        let r1 = (instr >> 6) & 0x7;
+        let offset = sign_extend(instr & 0x3F, 6);
+        let addr = (self.registers.get(r1)? as i16 + offset) as u16;
+        self.registers.set(r0, self.memory.read(addr)?)?;
+        self.registers.update_flags(r0)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::FL_ZRO;
+    use crate::{constants::FL_ZRO, memory::Memory, registers::Registers};
 
     use super::*;
 
+    fn create_vm() -> Vm {
+        Vm {
+            registers: Registers::new(),
+            memory: Memory::new(),
+        }
+    }
+
     #[test]
     fn op_ldr_positive_offset() {
-        let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut vm = create_vm();
 
-        registers.set(1, 0x3000);
-        memory.write(0x3002, 0xABCD);
+        vm.registers.set(1, 0x3000).unwrap();
+        vm.memory.write(0x3002, 0xABCD);
 
         let instr: u16 = 0b0110_0000_0100_0010; // LDR R0, R1, #2
-        op_ldr(&mut registers, instr, &mut memory);
+        vm.op_ldr(instr).unwrap();
 
-        assert_eq!(registers.get(0), 0xABCD);
+        assert_eq!(vm.registers.get(0).unwrap(), 0xABCD);
     }
 
     #[test]
     fn op_ldr_negative_offset() {
-        let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut vm = create_vm();
 
-        registers.set(1, 0x3002);
-        memory.write(0x3000, 0x5678);
+        vm.registers.set(1, 0x3002).unwrap();
+        vm.memory.write(0x3000, 0x5678);
 
         let instr: u16 = 0b0110_0000_0111_1110; // LDR R0, R1, #-2
-        op_ldr(&mut registers, instr, &mut memory);
+        vm.op_ldr(instr).unwrap();
 
-        assert_eq!(registers.get(0), 0x5678);
+        assert_eq!(vm.registers.get(0).unwrap(), 0x5678);
     }
 
     #[test]
     fn op_ldr_zero_offset() {
-        let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut vm = create_vm();
 
-        registers.set(1, 0x3000);
-        memory.write(0x3000, 0x9ABC);
+        vm.registers.set(1, 0x3000).unwrap();
+        vm.memory.write(0x3000, 0x9ABC);
 
         let instr: u16 = 0b0110_0000_0100_0000; // LDR R0, R1, #0
-        op_ldr(&mut registers, instr, &mut memory);
+        vm.op_ldr(instr).unwrap();
 
-        assert_eq!(registers.get(0), 0x9ABC);
+        assert_eq!(vm.registers.get(0).unwrap(), 0x9ABC);
     }
 
     #[test]
     fn op_ldr_update_flags() {
-        let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut vm = create_vm();
 
-        registers.set(1, 0x3000);
-        memory.write(0x3000, 0x0000);
+        vm.registers.set(1, 0x3000).unwrap();
+        vm.memory.write(0x3000, 0x0000);
 
         let instr: u16 = 0b0110_0000_0100_0000; // LDR R0, R1, #0
-        op_ldr(&mut registers, instr, &mut memory);
+        vm.op_ldr(instr).unwrap();
 
-        assert_eq!(registers.get(0), 0x0000);
-        assert_eq!(registers.cond, FL_ZRO);
+        assert_eq!(vm.registers.get(0).unwrap(), 0x0000);
+        assert_eq!(vm.registers.cond, FL_ZRO);
     }
 
     #[test]
     fn op_ldr_preserves_pc() {
-        let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut vm = create_vm();
 
-        registers.set(1, 0x3000);
+        vm.registers.set(1, 0x3000).unwrap();
 
         let instr: u16 = 0b0110_0000_0100_0010; // LDR R0, R1, #2
-        let initial_pc = registers.pc;
-        op_ldr(&mut registers, instr, &mut memory);
+        let initial_pc = vm.registers.pc;
+        vm.op_ldr(instr).unwrap();
 
-        assert_eq!(registers.pc, initial_pc);
+        assert_eq!(vm.registers.pc, initial_pc);
     }
 }

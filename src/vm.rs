@@ -1,13 +1,15 @@
-use std::{io::Error, process};
-
-use termios::Termios;
+use std::process;
 
 use crate::{
+    constants::{
+        OP_ADD, OP_AND, OP_BR, OP_JMP, OP_JSR, OP_LD, OP_LDI, OP_LDR, OP_LEA, OP_NOT, OP_ST,
+        OP_STI, OP_STR, OP_TRAP,
+    },
     input_buffering::{disable_input_buffering, restore_input_buffering},
     memory::Memory,
-    operations::handle_operations,
     registers::Registers,
     utils::{flush_stdout, read_image_file},
+    vm_error::VmError,
 };
 
 /// Represents the virtual machine (VM) that emulates the LC-3 computer.
@@ -18,9 +20,8 @@ use crate::{
 /// * `termios` - Stores the terminal I/O settings to handle input buffering.
 ///
 pub struct Vm {
-    registers: Registers,
-    memory: Memory,
-    termios: Termios,
+    pub registers: Registers,
+    pub memory: Memory,
 }
 
 impl Vm {
@@ -36,29 +37,19 @@ impl Vm {
     ///
     /// # Returns
     ///
-    /// A fully initialized `Vm` instance ready to run the loaded program.
+    /// A Result with a fully initialized `Vm` instance ready to run the loaded program or an error if something went wrong.
     ///
-    /// # Errors
-    ///
-    /// If an error occurs while reading an image file, the program will print an error message,
-    /// restore the terminal settings, and exit with an error code.
-    ///
-    pub fn new_from_images(args: Vec<String>) -> Result<Vm, Error> {
+    pub fn new_from_images(args: Vec<String>) -> Result<Vm, VmError> {
         let mut memory = Memory::new();
         let registers = Registers::new();
-        let termios = disable_input_buffering()?;
 
         for path in &args[1..] {
             println!("Loading image file: {}", path);
-            flush_stdout();
+            flush_stdout()?;
             read_image_file(path, &mut memory)?;
         }
 
-        Ok(Vm {
-            registers,
-            memory,
-            termios,
-        })
+        Ok(Vm { registers, memory })
     }
 
     /// Runs the loaded program.
@@ -75,23 +66,62 @@ impl Vm {
     ///
     /// A Result indicating whether the execution was successful or an error occurred.
     ///
-    pub fn run(&mut self) -> Result<(), Error> {
+    pub fn run(&mut self) -> Result<(), VmError> {
+        let termios = disable_input_buffering()?;
         let mut running = true;
         while running {
             let pc = self.registers.pc;
-            let instr = self.memory.read(pc);
+            let instr = self.memory.read(pc)?;
             self.registers.pc = self.registers.pc.wrapping_add(1);
             let op = instr >> 12;
 
-            handle_operations(
-                &mut self.registers,
-                instr,
-                op,
-                &mut self.memory,
-                &mut running,
-            );
+            self.handle_operations(instr, op, &mut running)?;
         }
-        restore_input_buffering(&self.termios)?;
+        restore_input_buffering(&termios)?;
         process::exit(1);
+    }
+
+    /// Handles the execution of operations based on the provided opcode.
+    ///
+    /// # Parameters
+    ///
+    /// - `instr`: The instruction to be executed.
+    /// - `op`: The operation code extracted from the instruction.
+    /// - `running`: Boolean flag that indicates if the program is running.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` if the handling was successful, otherwise returns a `VmError`.
+    ///
+    pub fn handle_operations(
+        &mut self,
+        instr: u16,
+        op: u16,
+        running: &mut bool,
+    ) -> Result<(), VmError> {
+        match op {
+            OP_ADD => self.op_add(instr),
+            OP_AND => self.op_and(instr),
+            OP_NOT => self.op_not(instr),
+            OP_BR => {
+                self.op_br(instr);
+                Ok(())
+            }
+            OP_JMP => self.op_jmp(instr),
+            OP_JSR => self.op_jsr(instr),
+            OP_LD => self.op_ld(instr),
+            OP_LDI => self.op_ldi(instr),
+            OP_LDR => self.op_ldr(instr),
+            OP_LEA => self.op_lea(instr),
+            OP_ST => self.op_st(instr),
+            OP_STI => self.op_sti(instr),
+            OP_STR => self.op_str(instr),
+            OP_TRAP => self.handle_trap(instr, running),
+            _ => {
+                println!("Bad opcode: {}", op);
+                flush_stdout()?;
+                self.trap_halt(running)
+            }
+        }
     }
 }

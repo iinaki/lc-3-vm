@@ -1,107 +1,107 @@
-use crate::{
-    memory::Memory,
-    registers::Registers,
-    utils::{sign_extend, update_flags},
-};
+use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-/// Executes the LDI operation.
-///
-/// Performs an indirect load. It first retrieves an address from memory using
-/// a sign-extended offset added to the program counter. Then, it uses that address to load
-/// the final value from memory into the destination register. The condition flags are updated
-/// based on the loaded value.
-///
-/// # Parameters
-///
-/// - `registers`: A mutable reference to the `Registers` struct.
-/// - `instr`: A 16-bit instruction.
-///
-pub fn op_ldi(registers: &mut Registers, instr: u16, memory: &mut Memory) {
-    let r0 = (instr >> 9) & 0x7;
-    let pc_offset = sign_extend(instr & 0x1FF, 9);
-    let addr = (registers.pc as i16 + pc_offset) as u16;
-    let indirect_addr = memory.read(addr);
-    registers.set(r0, memory.read(indirect_addr));
-    update_flags(registers, r0);
+impl Vm {
+    /// Executes the LDI operation.
+    ///
+    /// Performs an indirect load. It first retrieves an address from memory using
+    /// a sign-extended offset added to the program counter. Then, it uses that address to load
+    /// the final value from memory into the destination register. The condition flags are updated
+    /// based on the loaded value.
+    ///
+    /// # Parameters
+    ///
+    /// - `instr`: A 16-bit instruction.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
+    ///
+    pub fn op_ldi(&mut self, instr: u16) -> Result<(), VmError> {
+        let r0 = (instr >> 9) & 0x7;
+        let pc_offset = sign_extend(instr & 0x1FF, 9);
+        let addr = (self.registers.pc as i16 + pc_offset) as u16;
+        let indirect_addr = self.memory.read(addr)?;
+        self.registers.set(r0, self.memory.read(indirect_addr)?)?;
+        self.registers.update_flags(r0)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::FL_ZRO;
+    use crate::{constants::FL_ZRO, memory::Memory, registers::Registers, vm::Vm};
 
-    use super::*;
+    fn create_vm() -> Vm {
+        Vm {
+            registers: Registers::new(),
+            memory: Memory::new(),
+        }
+    }
 
     #[test]
     fn op_ldi_positive_offset() {
-        let mut registers = Registers::new();
-        let mut memory = Memory::new();
-
-        registers.pc = 0x3000;
-        memory.write(0x3002, 0x4000);
-        memory.write(0x4000, 0x1234);
+        let mut vm = create_vm();
+        vm.registers.pc = 0x3000;
+        vm.memory.write(0x3002, 0x4000);
+        vm.memory.write(0x4000, 0x1234);
 
         let instr: u16 = 0b1010_0000_0000_0010; // LDI R0, PC+2
-        op_ldi(&mut registers, instr, &mut memory);
+        vm.op_ldi(instr).unwrap();
 
-        assert_eq!(registers.get(0), 0x1234);
+        assert_eq!(vm.registers.get(0).unwrap(), 0x1234);
     }
 
     #[test]
     fn op_ldi_negative_offset() {
-        let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut vm = create_vm();
 
-        registers.pc = 0x3000;
-        memory.write(0x2FFE, 0x4000);
-        memory.write(0x4000, 0xABCD);
+        vm.registers.pc = 0x3000;
+        vm.memory.write(0x2FFE, 0x4000);
+        vm.memory.write(0x4000, 0xABCD);
 
         let instr: u16 = 0b1010_0001_1111_1110; // LDI R0, PC-2
-        op_ldi(&mut registers, instr, &mut memory);
+        vm.op_ldi(instr).unwrap();
 
-        assert_eq!(registers.get(0), 0xABCD);
+        assert_eq!(vm.registers.get(0).unwrap(), 0xABCD);
     }
 
     #[test]
     fn op_ldi_zero_offset() {
-        let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut vm = create_vm();
 
-        registers.pc = 0x3000;
-        memory.write(0x3000, 0x5000);
-        memory.write(0x5000, 0x5678);
+        vm.registers.pc = 0x3000;
+        vm.memory.write(0x3000, 0x5000);
+        vm.memory.write(0x5000, 0x5678);
 
         let instr: u16 = 0b1010_0000_0000_0000; // LDI R0, PC+0
-        op_ldi(&mut registers, instr, &mut memory);
+        vm.op_ldi(instr).unwrap();
 
-        assert_eq!(registers.get(0), 0x5678);
+        assert_eq!(vm.registers.get(0).unwrap(), 0x5678);
     }
 
     #[test]
     fn op_ldi_update_flags() {
-        let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut vm = create_vm();
 
-        registers.pc = 0x3000;
-        memory.write(0x3000, 0x0000);
-        memory.write(0x0000, 0x0000);
+        vm.registers.pc = 0x3000;
+        vm.memory.write(0x3000, 0x0000);
+        vm.memory.write(0x0000, 0x0000);
 
         let instr: u16 = 0b1010_0000_0000_0000; // LDI R0, PC+0
-        op_ldi(&mut registers, instr, &mut memory);
+        vm.op_ldi(instr).unwrap();
 
-        assert_eq!(registers.get(0), 0x0000);
-        assert_eq!(registers.cond, FL_ZRO);
+        assert_eq!(vm.registers.get(0).unwrap(), 0x0000);
+        assert_eq!(vm.registers.cond, FL_ZRO);
     }
 
     #[test]
     fn op_ldi_preserves_pc() {
-        let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut vm = create_vm();
 
-        registers.pc = 0x3000;
+        vm.registers.pc = 0x3000;
 
         let instr: u16 = 0b1010_0000_0000_0010; // LDI R0, PC+2
-        op_ldi(&mut registers, instr, &mut memory);
+        vm.op_ldi(instr).unwrap();
 
-        assert_eq!(registers.pc, 0x3000);
+        assert_eq!(vm.registers.pc, 0x3000);
     }
 }
