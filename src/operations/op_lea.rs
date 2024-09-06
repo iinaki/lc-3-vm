@@ -1,10 +1,6 @@
 use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-pub trait OpLea {
-    fn op_lea(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpLea for Vm {
+impl Vm {
     /// Executes the LEA operation.
     ///
     /// Computes an address by adding a sign-extended offset to the current value
@@ -19,7 +15,7 @@ impl OpLea for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_lea(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_lea(&mut self, instr: u16) -> Result<(), VmError> {
         let r0 = (instr >> 9) & 0x7;
         let pc_offset = sign_extend(instr & 0x1FF, 9);
         self.registers
@@ -32,8 +28,6 @@ impl OpLea for Vm {
 mod tests {
 
     use crate::{constants::FL_ZRO, memory::Memory, registers::Registers, vm::Vm};
-
-    use super::*;
 
     fn create_vm() -> Vm {
         Vm {

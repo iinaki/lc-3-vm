@@ -1,10 +1,6 @@
 use crate::{vm::Vm, vm_error::VmError};
 
-pub trait OpNot {
-    fn op_not(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpNot for Vm {
+impl Vm {
     /// Executes the NOT operation.
     ///
     /// Performs a bitwise NOT operation on the value in the source register,
@@ -19,7 +15,7 @@ impl OpNot for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_not(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_not(&mut self, instr: u16) -> Result<(), VmError> {
         let r0 = (instr >> 9) & 0x7;
         let r1 = (instr >> 6) & 0x7;
         self.registers.set(r0, !self.registers.get(r1)?)?;
@@ -36,8 +32,6 @@ mod tests {
         registers::Registers,
         vm::Vm,
     };
-
-    use super::*;
 
     fn create_vm() -> Vm {
         Vm {

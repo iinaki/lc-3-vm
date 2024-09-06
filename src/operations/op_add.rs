@@ -1,10 +1,6 @@
 use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-pub trait OpAdd {
-    fn op_add(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpAdd for Vm {
+impl Vm {
     /// Executes the ADD operation.
     ///
     /// The add can be between two registers or between a register and an immediate value.
@@ -19,13 +15,13 @@ impl OpAdd for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_add(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_add(&mut self, instr: u16) -> Result<(), VmError> {
         let r0 = (instr >> 9) & 0x7;
         let r1 = (instr >> 6) & 0x7;
         let imm_flag = (instr >> 5) & 0x1;
 
         if imm_flag == 1 {
-            let imm5 = sign_extend(instr & 0x1F, 5);
+            let imm5: i16 = sign_extend(instr & 0x1F, 5);
             self.registers
                 .set(r0, self.registers.get(r1)?.wrapping_add(imm5 as u16))?;
         } else {
@@ -42,13 +38,50 @@ impl OpAdd for Vm {
     }
 }
 
+// impl OpAdd for Vm {
+//     /// Executes the ADD operation.
+//     ///
+//     /// The add can be between two registers or between a register and an immediate value.
+//     /// The result is stored in a dest register, and the condition flags are updated
+//     /// to reflect the result of the operation.
+//     ///
+//     /// # Parameters
+//     ///
+//     /// - `instr`: A 16-bit instruction.
+//     ///
+//     /// # Returns
+//     ///
+//     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
+//     ///
+//     fn op_add(&mut self, instr: u16) -> Result<(), VmError> {
+//         let r0 = (instr >> 9) & 0x7;
+//         let r1 = (instr >> 6) & 0x7;
+//         let imm_flag = (instr >> 5) & 0x1;
+
+//         if imm_flag == 1 {
+//             let imm5: i16 = sign_extend(instr & 0x1F, 5);
+//             self.registers
+//                 .set(r0, self.registers.get(r1)?.wrapping_add(imm5 as u16))?;
+//         } else {
+//             let r2 = instr & 0x7;
+//             self.registers.set(
+//                 r0,
+//                 self.registers
+//                     .get(r1)?
+//                     .wrapping_add(self.registers.get(r2)?),
+//             )?;
+//         }
+
+//         self.registers.update_flags(r0)
+//     }
+// }
+
 #[cfg(test)]
 mod tests {
 
     use crate::{
         constants::{FL_NEG, FL_POS, FL_ZRO},
         memory::Memory,
-        operations::op_add::OpAdd,
         registers::Registers,
         vm::Vm,
     };

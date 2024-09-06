@@ -1,10 +1,6 @@
 use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-pub trait OpLdr {
-    fn op_ldr(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpLdr for Vm {
+impl Vm {
     /// Executes the LDR operation.
     ///
     /// Performs a load operation using a base register and an offset. The final
@@ -20,7 +16,7 @@ impl OpLdr for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_ldr(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_ldr(&mut self, instr: u16) -> Result<(), VmError> {
         let r0 = (instr >> 9) & 0x7;
         let r1 = (instr >> 6) & 0x7;
         let offset = sign_extend(instr & 0x3F, 6);

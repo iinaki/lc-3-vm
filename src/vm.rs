@@ -7,11 +7,6 @@ use crate::{
     },
     input_buffering::{disable_input_buffering, restore_input_buffering},
     memory::Memory,
-    operations::{
-        op_add::OpAdd, op_and::OpAnd, op_br::OpBr, op_jmp::OpJmp, op_jsr::OpJsr, op_ld::OpLd,
-        op_ldi::OpLdi, op_ldr::OpLdr, op_lea::OpLea, op_not::OpNot, op_st::OpSt, op_sti::OpSti,
-        op_str::OpStr, trap::Trap,
-    },
     registers::Registers,
     utils::{flush_stdout, read_image_file},
     vm_error::VmError,

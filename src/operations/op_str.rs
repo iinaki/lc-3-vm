@@ -1,10 +1,6 @@
 use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-pub trait OpStr {
-    fn op_str(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpStr for Vm {
+impl Vm {
     /// Executes the STR operation.
     ///
     /// Stores the value from a specified register into memory.
@@ -18,7 +14,7 @@ impl OpStr for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_str(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_str(&mut self, instr: u16) -> Result<(), VmError> {
         let r0 = (instr >> 9) & 0x7;
         let r1 = (instr >> 6) & 0x7;
         let offset = sign_extend(instr & 0x3F, 6);
@@ -33,8 +29,6 @@ impl OpStr for Vm {
 #[cfg(test)]
 mod tests {
     use crate::{memory::Memory, registers::Registers, vm::Vm};
-
-    use super::*;
 
     fn create_vm() -> Vm {
         Vm {

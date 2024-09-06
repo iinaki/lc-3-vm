@@ -1,10 +1,6 @@
 use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-pub trait OpLd {
-    fn op_ld(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpLd for Vm {
+impl Vm {
     /// Executes the LD operation.
     ///
     /// Loads a value from memory into a register. The address is computed by
@@ -18,7 +14,7 @@ impl OpLd for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_ld(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_ld(&mut self, instr: u16) -> Result<(), VmError> {
         let r0 = (instr >> 9) & 0x7;
         let pc_offset = sign_extend(instr & 0x1FF, 9);
         let address = (self.registers.pc as i16 + pc_offset) as u16;
@@ -28,9 +24,7 @@ impl OpLd for Vm {
 }
 #[cfg(test)]
 mod tests {
-    use crate::{
-        constants::FL_ZRO, memory::Memory, operations::op_ld::OpLd, registers::Registers, vm::Vm,
-    };
+    use crate::{constants::FL_ZRO, memory::Memory, registers::Registers, vm::Vm};
 
     fn create_vm() -> Vm {
         Vm {

@@ -1,10 +1,6 @@
 use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-pub trait OpJsr {
-    fn op_jsr(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpJsr for Vm {
+impl Vm {
     /// Executes the JSR operation.
     ///
     /// Performs a jump to a subroutine. It saves the current program counter
@@ -19,7 +15,7 @@ impl OpJsr for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_jsr(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_jsr(&mut self, instr: u16) -> Result<(), VmError> {
         let long_flag = (instr >> 11) & 1;
         self.registers.r7 = self.registers.pc;
         if long_flag == 1 {
@@ -36,7 +32,7 @@ impl OpJsr for Vm {
 
 #[cfg(test)]
 mod tests {
-    use crate::{memory::Memory, operations::op_jsr::OpJsr, registers::Registers, vm::Vm};
+    use crate::{memory::Memory, registers::Registers, vm::Vm};
 
     fn create_vm() -> Vm {
         Vm {

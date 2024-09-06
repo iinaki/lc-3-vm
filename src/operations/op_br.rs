@@ -1,10 +1,6 @@
 use crate::{utils::sign_extend, vm::Vm};
 
-pub trait OpBr {
-    fn op_br(&mut self, instr: u16);
-}
-
-impl OpBr for Vm {
+impl Vm {
     /// Executes the BRANCH operation.
     ///
     /// Conditionally updates the program counter based on the
@@ -15,7 +11,7 @@ impl OpBr for Vm {
     ///
     /// - `instr`: A 16-bit instruction.
     ///
-    fn op_br(&mut self, instr: u16) {
+    pub fn op_br(&mut self, instr: u16) {
         let pc_offset = sign_extend(instr & 0x1FF, 9);
         let cond_flag = (instr >> 9) & 0x7;
         if cond_flag & self.registers.cond != 0 {
@@ -26,9 +22,7 @@ impl OpBr for Vm {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        constants::FL_POS, memory::Memory, operations::op_br::OpBr, registers::Registers, vm::Vm,
-    };
+    use crate::{constants::FL_POS, memory::Memory, registers::Registers, vm::Vm};
 
     fn create_vm() -> Vm {
         Vm {

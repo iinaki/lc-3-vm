@@ -1,10 +1,6 @@
 use crate::{vm::Vm, vm_error::VmError};
 
-pub trait OpJmp {
-    fn op_jmp(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpJmp for Vm {
+impl Vm {
     /// Executes the JUMP operation.
     ///
     /// This opcode updates the program counter to the address stored in the specified
@@ -18,7 +14,7 @@ impl OpJmp for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_jmp(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_jmp(&mut self, instr: u16) -> Result<(), VmError> {
         let r1 = (instr >> 6) & 0x7;
         self.registers.pc = self.registers.get(r1)?;
         Ok(())
@@ -26,7 +22,7 @@ impl OpJmp for Vm {
 }
 #[cfg(test)]
 mod tests {
-    use crate::{memory::Memory, operations::op_jmp::OpJmp, registers::Registers, vm::Vm};
+    use crate::{memory::Memory, registers::Registers, vm::Vm};
 
     fn create_vm() -> Vm {
         Vm {

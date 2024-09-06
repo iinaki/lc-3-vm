@@ -1,10 +1,6 @@
 use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-pub trait OpSti {
-    fn op_sti(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpSti for Vm {
+impl Vm {
     /// Executes the STI operation.
     ///
     /// Stores the value from the specified register into memory at an address determined indirectly.
@@ -18,7 +14,7 @@ impl OpSti for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_sti(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_sti(&mut self, instr: u16) -> Result<(), VmError> {
         let r0 = (instr >> 9) & 0x7;
         let pc_offset = sign_extend(instr & 0x1FF, 9);
         let addr = self
@@ -32,8 +28,6 @@ impl OpSti for Vm {
 #[cfg(test)]
 mod tests {
     use crate::{memory::Memory, registers::Registers, vm::Vm};
-
-    use super::*;
 
     fn create_vm() -> Vm {
         Vm {

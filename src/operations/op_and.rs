@@ -1,10 +1,6 @@
 use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-pub trait OpAnd {
-    fn op_and(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpAnd for Vm {
+impl Vm {
     /// Performs a bitwise AND operation between two operands.
     ///
     /// The first operand is always a register, and the second
@@ -20,7 +16,7 @@ impl OpAnd for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_and(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_and(&mut self, instr: u16) -> Result<(), VmError> {
         let r0 = (instr >> 9) & 0x7;
         let r1 = (instr >> 6) & 0x7;
         let imm_flag = (instr >> 5) & 0x1;
@@ -43,7 +39,6 @@ mod tests {
     use crate::{
         constants::{FL_NEG, FL_POS, FL_ZRO},
         memory::Memory,
-        operations::op_and::OpAnd,
         registers::Registers,
         vm::Vm,
     };

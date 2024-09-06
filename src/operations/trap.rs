@@ -7,17 +7,7 @@ use crate::{
     vm_error::VmError,
 };
 
-pub trait Trap {
-    fn trap_getc(&mut self) -> Result<(), VmError>;
-    fn trap_out(&mut self) -> Result<(), VmError>;
-    fn trap_puts(&mut self) -> Result<(), VmError>;
-    fn trap_in(&mut self) -> Result<(), VmError>;
-    fn trap_putsp(&mut self) -> Result<(), VmError>;
-    fn trap_halt(&self, running: &mut bool) -> Result<(), VmError>;
-    fn handle_trap(&mut self, instr: u16, running: &mut bool) -> Result<(), VmError>;
-}
-
-impl Trap for Vm {
+impl Vm {
     /// Handles the `GETC` TRAP instruction.
     ///
     /// This function reads a single character from the standard input (stdin)
@@ -141,7 +131,7 @@ impl Trap for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn trap_halt(&self, running: &mut bool) -> Result<(), VmError> {
+    pub fn trap_halt(&self, running: &mut bool) -> Result<(), VmError> {
         println!("HALT");
         *running = false;
         flush_stdout()
@@ -159,7 +149,7 @@ impl Trap for Vm {
     ///
     /// Returns `Ok(())` if the handling was successful, otherwise returns a `VmError`.
     ///
-    fn handle_trap(&mut self, instr: u16, running: &mut bool) -> Result<(), VmError> {
+    pub fn handle_trap(&mut self, instr: u16, running: &mut bool) -> Result<(), VmError> {
         self.registers.r7 = self.registers.pc;
         let trap_instr = instr & 0xFF;
         match trap_instr {

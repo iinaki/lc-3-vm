@@ -1,10 +1,6 @@
 use crate::{utils::sign_extend, vm::Vm, vm_error::VmError};
 
-pub trait OpLdi {
-    fn op_ldi(&mut self, instr: u16) -> Result<(), VmError>;
-}
-
-impl OpLdi for Vm {
+impl Vm {
     /// Executes the LDI operation.
     ///
     /// Performs an indirect load. It first retrieves an address from memory using
@@ -20,7 +16,7 @@ impl OpLdi for Vm {
     ///
     /// Returns `Ok(())` if the operation was successful, otherwise returns a `VmError`.
     ///
-    fn op_ldi(&mut self, instr: u16) -> Result<(), VmError> {
+    pub fn op_ldi(&mut self, instr: u16) -> Result<(), VmError> {
         let r0 = (instr >> 9) & 0x7;
         let pc_offset = sign_extend(instr & 0x1FF, 9);
         let addr = (self.registers.pc as i16 + pc_offset) as u16;
@@ -33,8 +29,6 @@ impl OpLdi for Vm {
 #[cfg(test)]
 mod tests {
     use crate::{constants::FL_ZRO, memory::Memory, registers::Registers, vm::Vm};
-
-    use super::*;
 
     fn create_vm() -> Vm {
         Vm {
