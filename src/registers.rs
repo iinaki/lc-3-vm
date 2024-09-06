@@ -120,16 +120,19 @@ impl Registers {
     ///
     /// # Returns
     ///
-    /// An `Ok` result if the operation was successful, otherwise a `VmError`.
+    /// An `Ok` result if the operation was successful, otherwise a `VmError` if it fails to get de value of `r`.
     ///
     pub fn update_flags(&mut self, r: u16) -> Result<(), VmError> {
-        if self.get(r)? == 0 {
+        let r_value = self.get(r)?;
+
+        if r_value == 0 {
             self.cond = FL_ZRO;
-        } else if (self.get(r)? >> 15) & 1 == 1 {
+        } else if (r_value >> 15) & 1 == 1 {
             self.cond = FL_NEG;
         } else {
             self.cond = FL_POS;
         }
+
         Ok(())
     }
 }
